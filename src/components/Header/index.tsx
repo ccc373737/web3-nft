@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 
+
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -20,8 +21,8 @@ const Header = () => {
     <React.Fragment>
       <CssBaseline />
       
-      <AppBar className="header">
-        <Toolbar>
+      <AppBar className="header" position="relative">
+        <Toolbar variant="dense">
           <Link to="/">
             <img src={logo} alt="Galerie" className="logo"/>
           </Link>
@@ -35,6 +36,7 @@ const Header = () => {
         </button> */}
       </AppBar>
     </React.Fragment>
+    
   );
 };
 

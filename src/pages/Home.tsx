@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
-import '../style/Global.css'
+import '../style/Global.css';
 
 
 //import getWeb3 from "../../utils/getWeb3";
@@ -165,13 +165,16 @@ export default function Home() {
           </Grid>
           
           <Grid item xs={6} className="main" >
-            <img src={galerie} alt="galerie" className="images" />
-            <Typography>A decentralized NFT marketplace where you can expose your art.</Typography>
-            <Link to="/create-nft">
-              <Button variant="contained" color="primary" disableElevation>
+          {/* <Grid item xs={6} style={{display: "flex", flexDirection: "column", alignItems: "center",
+  justifyContent: "center", padding: "0 1rem"}} > */}
+            <img src={galerie} alt="galerie" style={{width: "55%"}}/>
+            <Typography className="main-text">A decentralized NFT marketplace where you can expose your art.</Typography>
+            {/* <Link to="/create-nft">
+              <Button variant="contained" color="primary" disableElevation className="main-button">
                 Mint your art
               </Button>
-            </Link>
+            </Link> */}
+            
           </Grid>
 
           <Grid item xs={3}>

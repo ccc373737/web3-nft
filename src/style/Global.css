@@ -39,36 +39,32 @@
 }
 
 .main {
-  backgroundColor: white;
-  display: flex;
-  flexDirection: column;
-  alignItems: center;
-  justifyContent: center;
+  background-Color: white;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 0 1rem;
-  
-  /* '& img': {
-    width: "55%"
-  };
+  flex-wrap: wrap;
+}
 
-  '& p': {
-    margin: "3rem 8rem 4rem 8.5rem";
-    fontSize: "1.2rem";
-    textAlign: "center";
-  };
+.main-text {
+  margin: 3rem 8rem 4rem 8.5rem;
+  font-size: 1.2rem;
+  text-align: center;
+}
 
-  '& button': {
-    textTransform: 'none';
-    fontSize: "1.2rem";
-    fontWeight: "400";
-    background: '#3F51B5'
-  } */
-
-};
+.main-button {
+  text-transform: none;
+  font-size: 1.2rem;
+  font-weight: 400;
+  background: #3F51B5;
+}
 
 .allNfts {
   marginTop: 2rem;
   padding: 0 2rem;
-};
+}
 
 .title {
   fontFamily: sans-serif;
