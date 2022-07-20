@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
@@ -144,9 +143,9 @@ export default function Home() {
 //   const nftItem = useSelector((state) => state.allNft.nft);
 
   return (
-    <div className="homepage">
-      <section className="banner">
-        <Grid container spacing={0} xs={12} className="gridBanner">
+    <div>
+      <section>
+        <Grid container spacing={0} xs={12}>
           <Grid item xs={3}>
             <Grid container spacing={0}>
               <Grid item xs={8}>
@@ -164,16 +163,17 @@ export default function Home() {
             </Grid>
           </Grid>
           
-          <Grid item xs={6} className="main" >
-          {/* <Grid item xs={6} style={{display: "flex", flexDirection: "column", alignItems: "center",
-  justifyContent: "center", padding: "0 1rem"}} > */}
+          {/* <Grid item xs={6} className="main" > */}
+          <Grid item xs={6} style={{display: "flex", flexDirection: "column", alignItems: "center",
+  justifyContent: "space-around", padding: "0 1rem"}} >
             <img src={galerie} alt="galerie" style={{width: "55%"}}/>
-            <Typography className="main-text">A decentralized NFT marketplace where you can expose your art.</Typography>
-            {/* <Link to="/create-nft">
-              <Button variant="contained" color="primary" disableElevation className="main-button">
+
+            <Typography style={{fontSize: "1.2rem", textAlign: "center"}}>A decentralized NFT marketplace where you can expose your art.</Typography>
+
+            <Button variant="contained" color="primary" href="/create-nft"
+            disableElevation className="main-button">
                 Mint your art
-              </Button>
-            </Link> */}
+            </Button>
             
           </Grid>
 
@@ -196,8 +196,10 @@ export default function Home() {
         </Grid>
       </section>
       
-      {/* <section className={classes.allNfts}>
-        <Typography className={classes.title}>Latest artwork</Typography>
+      <section style={{ marginTop: "2rem", padding: "0 2rem"}}>
+        <Typography style={{fontFamily: "sans-serif", fontSize: "1.8rem", 
+        fontWeight: "600", marginBottom: "1rem"}}>Latest artwork</Typography>
+
         <Grid
           container
           direction="row"
@@ -205,13 +207,13 @@ export default function Home() {
           alignItems="center"
           spacing={2}
         >
-          {nftItem.map((nft) => (
+          {/* {nftItem.map((nft) => (
             <Grid item key={nft.tokenId}>
               <Card {...nft} />
             </Grid>
-          ))}
+          ))} */}
         </Grid>
-      </section> */}
+      </section>
     </div>
   );
 }

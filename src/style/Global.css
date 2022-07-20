@@ -16,26 +16,11 @@
     marginRight: 0.4rem,
 }
 
-.homepage {
-
-}
-
 .images {
-  objectFit: cover;
+  object-fit: cover;
   width: 100%;
   height: 100%;
   
-}
-
-.banner {
-   /* minHeight: "50vh";
-   maxHeight: "50vh";
-   marginBottom: "3rem"; */
-}
-
-.gridBanner {
-  /* margin: 0;
-  width: '100%'; */
 }
 
 .main {
