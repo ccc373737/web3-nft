@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
 import '../style/Global.css';
-
+import Card from "../components/Card";
 
 //import getWeb3 from "../../utils/getWeb3";
 //import { api } from "../../services/api";
@@ -141,6 +141,25 @@ export default function Home() {
 //   console.log("Nft :", nft);
 
 //   const nftItem = useSelector((state) => state.allNft.nft);
+  let itemsList = [];
+
+  for (let i = 0; i < 5; i++) {
+    itemsList.push({
+      tokenId: "12123",
+      name: "ccc",
+      image: "https://assets.souche.com/assets/sccimg//fallv2.png",
+      price: 20,
+      owner: "mycccc",
+      isForSale: false,
+  
+      description: "sada", 
+      creator: "cccsa",
+      uri: "sdsad",
+      saleId: null,
+      isSold: null,
+    });
+  }
+
 
   return (
     <div>
@@ -203,15 +222,15 @@ export default function Home() {
         <Grid
           container
           direction="row"
-          justifyContent="center"
-          alignItems="center"
+          justifyContent="left"
+          alignItems="left"
           spacing={2}
         >
-          {/* {nftItem.map((nft) => (
+          {itemsList.map((nft) => (
             <Grid item key={nft.tokenId}>
               <Card {...nft} />
             </Grid>
-          ))} */}
+          ))}
         </Grid>
       </section>
     </div>
