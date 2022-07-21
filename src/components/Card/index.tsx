@@ -13,8 +13,6 @@ import CardActionArea from "@mui/material/CardActionArea";
 
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 
-//import { useStyles } from "./styles.js";
-
 const Card = ({ 
     tokenId, name, image, price, owner, isForSale 
 } : {
@@ -50,7 +48,7 @@ const Card = ({
                 height: "1.4rem",
                 marginLeft: "auto",
                 color: "white",
-                backgroundColor: "red"}}
+                backgroundColor: "green"}}
               />
             </div>
 
@@ -58,11 +56,12 @@ const Card = ({
                 alignItems: 'center',
                 flexWrap: 'wrap',
                 padding:" 0.8rem 0 0.4rem"}}>
-              <SvgIcon
-                component={EthereumLogo}
-                viewBox="0 0 400 426.6"
-                titleAccess="ETH"
-              />
+              
+                <SvgIcon
+                    component={EthereumLogo}
+                    viewBox="0 0 400 426.6"
+                    titleAccess="ETH"
+                />
               {/* <span>{Web3.utils.fromWei(String(price), "ether")}.120000</span> */}
             </Typography>
 

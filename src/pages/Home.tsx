@@ -147,7 +147,7 @@ export default function Home() {
     itemsList.push({
       tokenId: "12123",
       name: "ccc",
-      image: "https://assets.souche.com/assets/sccimg//fallv2.png",
+      image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/hor-banner.png",
       price: 20,
       owner: "mycccc",
       isForSale: false,
