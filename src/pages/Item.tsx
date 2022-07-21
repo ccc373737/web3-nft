@@ -6,9 +6,10 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import Web3 from "web3";
+import getProvider from "../utils/Web3Util";
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
+declare let window:any;
 
 const Item = () => {
   //const classes = useStyles();
@@ -75,6 +76,10 @@ const Item = () => {
   }
 
   async function buy(saleId: number, price: number) {
+    const provider = await getProvider();
+    provider.getBlockNumber().then((result) => {
+            console.log(result)
+        })
     // try {
     //   const receipt = await marketplaceContract.methods
     //     .buyItem(saleId)

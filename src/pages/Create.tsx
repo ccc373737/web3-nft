@@ -5,13 +5,16 @@ import CancelOutlinedIcon  from "@mui/icons-material/CancelOutlined";
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { ethers } from "ethers";
+import getProvider from "../utils/Web3Util";
+import store from '../state';
 
 import DropZone from "../components/UploadZone";
 
 //import { api } from "../../services/api";
 
 const CreateNFT = () => {
-
+    
 //   const account = useSelector((state) => state.allNft.account);
 //   const artTokenContract = useSelector(
 //     (state) => state.allNft.artTokenContract
@@ -32,7 +35,13 @@ const CreateNFT = () => {
     setFormData({ ...formData, [name]: value });
   }
 
-  async function createNFT(event: any) {
+  async function create(event: any) {
+    const provider = await getProvider();
+    let currentAccount = store.getState().state.account;
+
+    provider.getBalance(currentAccount as string).then((result)=>{
+      console.log(ethers.utils.formatEther(result));
+    })
     console.log(formData);
     // event.preventDefault();
     // const { title, description } = formData;
@@ -92,7 +101,7 @@ const CreateNFT = () => {
 
   return (
     <div style={{width: "100%", maxWidth: "1100px", margin: "0 auto"}}>
-      <form onSubmit={createNFT}>
+      <form>
         <div style={{display: "flex", alignItems: "baseline"}}>
 
           <h1>Create collectible</h1>
@@ -152,7 +161,7 @@ const CreateNFT = () => {
               fullWidth
             />
 
-            <Button variant="contained" color="primary" type="submit">
+            <Button variant="contained" color="primary" onClick={create}>
               Submit
             </Button>
           </fieldset>

@@ -216,6 +216,7 @@ export default function Home() {
       </section>
       
       <section style={{ marginTop: "2rem", padding: "0 2rem"}}>
+
         <Typography style={{fontFamily: "sans-serif", fontSize: "1.8rem", 
         fontWeight: "600", marginBottom: "1rem"}}>Latest artwork</Typography>
 
@@ -223,7 +224,7 @@ export default function Home() {
           container
           direction="row"
           justifyContent="left"
-          alignItems="left"
+          alignItems="center"
           spacing={2}
         >
           {itemsList.map((nft) => (
