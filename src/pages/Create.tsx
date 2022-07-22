@@ -8,6 +8,8 @@ import Button from "@mui/material/Button";
 import { ethers } from "ethers";
 import getProvider from "../utils/Web3Util";
 import store from '../state';
+import Temp from "../contracts/Temp.json";
+
 
 import DropZone from "../components/UploadZone";
 
@@ -27,6 +29,13 @@ const CreateNFT = () => {
     price: "",
   });
 
+  const contractProvider = ethers.providers.getDefaultProvider('ropsten');
+  const address  = Temp.address;
+  const abi = Temp.abi;
+
+  const contract = new ethers.Contract(address, abi, contractProvider);
+
+
   function handleInputChange(event: any) {
     let { name, value } = event.target;
     // if(name === 'image'){
@@ -35,14 +44,38 @@ const CreateNFT = () => {
     setFormData({ ...formData, [name]: value });
   }
 
+  async function getTest(event: any) {
+    console.log("0909087");
+
+    let temp = await contract.getTemp()
+    console.log(temp.toNumber());
+    console.log(contract.getTemp());
+
+    const estimatedGasLimit = await contract.estimateGas.setTemp(22222);
+    console.log(estimatedGasLimit.toNumber());
+  }
+
   async function create(event: any) {
     const provider = await getProvider();
     let currentAccount = store.getState().state.account;
 
-    provider.getBalance(currentAccount as string).then((result)=>{
-      console.log(ethers.utils.formatEther(result));
-    })
-    console.log(formData);
+    const signer = provider.getSigner();
+
+    const contract1 = new ethers.Contract(address, abi, signer);
+
+    console.log(signer);
+
+    const estimatedGasLimit = await contract1.estimateGas.setTemp(22222);
+    console.log(estimatedGasLimit.toNumber());
+    //contract1.setTemp(1100);
+
+// // Send 1 DAI to "ricmoo.firefly.eth"
+// tx = daiWithSigner.transfer("ricmoo.firefly.eth", dai);
+
+    // provider.getBalance(currentAccount as string).then((result)=>{
+    //   console.log(ethers.utils.formatEther(result));
+    // })
+    // console.log(formData);
     // event.preventDefault();
     // const { title, description } = formData;
 
@@ -163,6 +196,10 @@ const CreateNFT = () => {
 
             <Button variant="contained" color="primary" onClick={create}>
               Submit
+            </Button>
+
+            <Button variant="contained" color="primary" onClick={getTest}>
+              get
             </Button>
           </fieldset>
         </div>
