@@ -14,10 +14,6 @@ contract Token is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
 
     constructor() ERC721("MyToken", "MTK") {}
 
-    enum Status {NORMAL, FIXED_PRICE, DUCTCH_AUCTION, ENGLISH_AUCTION, EXCHANGE_AUCTION, EXCHANGED}
-
-    mapping(uint256 => Status) private _status;
-
     function safeMint(address to, string memory uri) public onlyOwner {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
