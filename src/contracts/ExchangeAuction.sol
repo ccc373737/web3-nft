@@ -13,19 +13,18 @@ contract ExchangeAuction is MarketState {
                           uint256 indexed tokenId, 
                           uint256 exchangeTokenId);
 
-    event EnglishAuctionWithdraw(address indexed nftAddr, 
+    event ExchangeAuctionWithdraw(address indexed nftAddr, 
                             address indexed bider, 
                             uint256 indexed tokenId,
-                            uint256 balance);                      
+                            uint256 exchangeTokenId);                      
 
-    event EnglishAuctionRevoke(address indexed nftAddr, 
+    event ExchangeAuctionRevoke(address indexed nftAddr, 
                              address indexed seller, 
                              uint256 indexed tokenId);
 
-    event EnglishAuctionEnd(address indexed nftAddr, 
-                            address indexed buyer, 
+    event ExchangeAuctionEnd(address indexed nftAddr, 
                             uint256 indexed tokenId,
-                            uint256 price);                        
+                            uint256 exchangeTokenId);                        
 
     struct ExchangeAuctionOrder {
         address owner;
@@ -61,72 +60,70 @@ contract ExchangeAuction is MarketState {
         require(block.timestamp <= order.endTime, "It's Overed");
         require(order.bidMap[exchangeTokenId] == address(0), "The token is already part of the exchange");
 
-        address owner = transferToThis(nftAddr, exchangeTokenId);
+        transferToThis(nftAddr, exchangeTokenId);
         order.bidMap[exchangeTokenId] = msg.sender;
         order.bidTokenList.push(exchangeTokenId);
     
         emit ExchangeAuctionBid(nftAddr, msg.sender, tokenId, exchangeTokenId);
     }
 
-    function enAuctionWithdraw(address nftAddr, uint256 tokenId) external {
+    function exchangeWithdraw(address nftAddr, uint256 tokenId, uint256 exchangeTokenId) external inMarket(nftAddr, exchangeTokenId) {
         require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
 
-        EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
-        require(msg.sender != order.highestBid, "you are highestBider, not allow withdraw!");
-        
-        uint256 balance = order.bidMap[msg.sender];
-        require(balance > 0, "No balance!");
+        ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
+        require(order.bidMap[exchangeTokenId] == msg.sender, "You are not exchangeTokenId owner");
 
-        //reset and transfer
-        order.bidMap[msg.sender] = 0;
-        payable(msg.sender).transfer(balance);
+        transferToSender(nftAddr, exchangeTokenId, msg.sender);
+        delete order.bidMap[exchangeTokenId];
     
-        emit EnglishAuctionWithdraw(nftAddr, msg.sender, tokenId, balance);
+        emit ExchangeAuctionWithdraw(nftAddr, msg.sender, tokenId, exchangeTokenId);
     }
 
-    function enAuctionRevoke(address nftAddr, uint256 tokenId) external inMarket(nftAddr, tokenId) {
+    function exchangeRevoke(address nftAddr, uint256 tokenId) external {
         require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
-        EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
+        ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
 
         require(order.owner == msg.sender, "Not owner");
 
         //withdraw to every bider
-        for (uint256 i = 0; i < order.bidList.length; i++) {
-            if (order.bidMap[order.bidList[i]] > 0) {
-                payable(order.bidList[i]).transfer(order.bidMap[order.bidList[i]]);
+        for (uint256 i = 0; i < order.bidTokenList.length; i++) {
+            if (order.bidMap[order.bidTokenList[i]] != address(0)) {
+                transferToSender(nftAddr, order.bidTokenList[i], order.bidMap[order.bidTokenList[i]]);
             }
         }
 
         transferToSender(nftAddr, tokenId, order.owner);
         setStatus(nftAddr, tokenId, Status.NORMAL);
-        delete _enOrderMap[nftAddr][tokenId];
+        delete _exOrderMap[nftAddr][tokenId];
 
-        emit EnglishAuctionRevoke(nftAddr, order.owner, tokenId);
+        emit ExchangeAuctionRevoke(nftAddr, order.owner, tokenId);
     }
 
-    function enAuctionEnd(address nftAddr, uint256 tokenId) external inMarket(nftAddr, tokenId) {
+    function exchangeEnd(address nftAddr, uint256 tokenId, uint256 exchangeTokenId) external {
         require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
-        EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
+        ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
 
-        require(block.timestamp > order.endTime, "Auction is not finished");
-        //1.send nft to highestBider
-        transferToSender(nftAddr, tokenId, order.highestBid);
-        //2.send eth to seller
-        payable(order.owner).transfer(order.highestPrice);
-        //3.set highestBider balance zero
-        order.bidMap[order.highestBid] = 0;
+        require(order.owner == msg.sender, "Not owner");
+        require(order.bidMap[exchangeTokenId] != address(0), " the exchangeToken not part in this auction!");
 
-        //4.withdraw other biders balance
-        for (uint256 i = 0; i < order.bidList.length; i++) {
-            if (order.bidMap[order.bidList[i]] > 0) {
-                payable(order.bidList[i]).transfer(order.bidMap[order.bidList[i]]);
+        //1.send exchange nft to seller
+        transferToSender(nftAddr, exchangeTokenId, order.owner);
+        //2.send owner nft to buyer
+        transferToSender(nftAddr, tokenId, order.bidMap[exchangeTokenId]);
+        //3.delete exchange nft
+        delete order.bidMap[exchangeTokenId];
+
+        //4.withdraw other biders token
+        for (uint256 i = 0; i < order.bidTokenList.length; i++) {
+            if (order.bidMap[order.bidTokenList[i]] != address(0)) {
+                transferToSender(nftAddr, order.bidTokenList[i], order.bidMap[order.bidTokenList[i]]);
             }
         }
 
         //5.reset status and map
         setStatus(nftAddr, tokenId, Status.NORMAL);
-        delete _enOrderMap[nftAddr][tokenId];
+        delete _exOrderMap[nftAddr][tokenId];
 
-        emit EnglishAuctionEnd(nftAddr, order.highestBid, tokenId, order.highestPrice);
+        emit ExchangeAuctionEnd(nftAddr, tokenId, exchangeTokenId);
     }
 }
