@@ -5,8 +5,17 @@ import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-import Grid from "@mui/material/Grid";
 import getProvider from "../utils/Web3Util";
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
+import { Box, Container, Grid, Typography, FormControl, FormLabel,
+         Radio, RadioGroup, FormControlLabel } from '@mui/material';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
+
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
 declare let window:any;
@@ -26,7 +35,7 @@ const Item = () => {
   let account = "sdadad";
   let nft = {tokenId: "12123",
   name: "ccc",
-  image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/hor-banner.png",
+  image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
   price: 20,
   owner: "mycccc",
   isForSale: true,
@@ -92,98 +101,87 @@ const Item = () => {
     // }
   }
 
+  const [value, setValue] = React.useState<Date | null>(new Date())
+
+  const Fixed = () => {
+    return (
+      <div>
+        fixed price 
+
+        <TextField
+          id="standard-number"
+          type="number"
+          label={'margin="normal"'}
+        />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+
+        <DateTimePicker
+          renderInput={(props) => <TextField {...props} />}
+          label="DateTimePicker"
+          value={value}
+          ampm={false}
+          onChange={(newValue) => {
+            setValue(newValue);
+          }}
+        />
+        
+      
+      </LocalizationProvider>
+    
+      </div>
+    )
+  }
+
   return (
-    <div style={{width: "100%", maxWidth: "1100px", margin: "0 auto"}}>
-      {Object.keys(nft).length === 0 ? (
-        <div>...CARREGANDO</div>
-      ) : (
-        <main>
-          <header>
+    <React.Fragment>
+      <Container maxWidth="lg" sx={{mt:10, bgcolor: '#cfe8fc'}}>
+        
+        <Grid container spacing={3}>
+
+          <Grid item lg={5} md={6} sx={{alignItems: 'center',display: 'flex'}}>
+            <img src={image} style={{width: "100%",height: "100%", borderRadius: 10}}/>
+
+          </Grid>
+
+          <Grid item lg={7} md={6} >
             <Link to="/">
               <KeyboardBackspaceIcon fontSize="large" />
             </Link>
-          </header>
-          <section>
-            <Grid container spacing={0} alignItems="center">
-              <Grid item md={7} sm={7} xs={12}>
-                <figure> 
-                  <img className="ui fluid image" src={image} />
-                </figure>
-              </Grid>
-              <Grid item md={5} sm={5} xs={12}>
-                <fieldset>
-                  <h1>{name}</h1>
-                  <TextField
-                    label="creator"
-                    name="creator"
-                    variant="filled"
-                    margin="dense"
-                    fullWidth
-                    disabled
-                    defaultValue={
-                      creator.slice(0, 7) + "..." + creator.slice(-4)
-                    }
-                  />
-                  <TextField
-                    label="owner"
-                    name="owner"
-                    variant="filled"
-                    disabled
-                    fullWidth
-                    margin="dense"
-                    defaultValue={owner.slice(0, 7) + "..." + owner.slice(-4)}
-                  />
-                  <TextField
-                    id="outlined-multiline-static"
-                    multiline
-                    rows={4}
-                    label="Description"
-                    name="description"
-                    variant="filled"
-                    margin="dense"
-                    disabled
-                    fullWidth
-                    defaultValue={description}
-                  />
-                  <TextField
-                    label="price"
-                    name="price"
-                    variant="filled"
-                    margin="dense"
-                    // defaultValue={Web3.utils.fromWei(String(price), "ether")}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">ETH</InputAdornment>
-                      ),
-                    }}
-                    fullWidth
-                    disabled
-                  />
-                  {owner === account && !isForSale && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => putForSale(tokenId, 200)}
-                    >
-                      Sell
-                    </Button>
-                  )}
-                  {owner !== account && isForSale && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => buy(saleId, 200)}
-                    >
-                      Buy
-                    </Button>
-                  )}
-                </fieldset>
-              </Grid>
-            </Grid>
-          </section>
-        </main>
-      )}
-    </div>
+
+            <Typography variant="h6" gutterBottom component="div">
+              h6. Heading
+            </Typography>
+
+            <Button variant="contained" disabled endIcon={<SwapHorizontalCircleIcon />}>
+              Approve
+            </Button>
+
+            <Typography variant="h6" gutterBottom component="div">
+              Sell Model
+            </Typography>
+
+            <FormControl>
+              <RadioGroup
+                defaultValue="fixed"
+                name="radio-buttons-group"
+              >
+                <FormControlLabel value="fixed" control={<Radio />} label={<Fixed/>} />
+                <FormControlLabel value="dutch" control={<Radio />} label="DutchAuction" />
+                <FormControlLabel value="english" control={<Radio />} label="EnglishAuction" />
+                <FormControlLabel value="exchange" control={<Radio />} label="ExchangeAuction" />
+              </RadioGroup>
+            </FormControl>
+
+          </Grid>
+
+        </Grid>
+      </Container>
+
+
+
+    </React.Fragment>
+    
+    
   );
 };
 
