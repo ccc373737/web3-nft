@@ -7,5 +7,5 @@ import "./EnglishAuction.sol";
 import "./ExchangeAuction.sol";
 
 contract Market is Fixed, DutchAuction, EnglishAuction, ExchangeAuction {
-
+ 
 }
