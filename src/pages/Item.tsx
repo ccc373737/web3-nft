@@ -5,20 +5,35 @@ import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-import getProvider from "../utils/Web3Util";
+import {getProvider} from "../utils/Web3Util";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import { Box, Container, Grid, Typography, FormControl, FormLabel,
-         Radio, RadioGroup, FormControlLabel } from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+         Radio, RadioGroup, FormControlLabel, CardContent,
+         Card, Chip } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import Badge, { BadgeProps } from '@mui/material/Badge';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import SvgIcon from "@mui/material/SvgIcon";
+import { ReactComponent as EthereumLogo } from "../assets/ethereum_logo.svg";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import Auction from '../components/Auction';
+import AuctionDetail from "../components/AuctionDetail";
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
 declare let window:any;
+
+export enum TokenStatus {
+  NORMAL, 
+  FIXED_PRICE, 
+  DUCTCH_AUCTION, 
+  ENGLISH_AUCTION, 
+  EXCHANGE_AUCTION, 
+  EXCHANGED
+}
 
 const Item = () => {
   //const classes = useStyles();
@@ -58,6 +73,9 @@ const Item = () => {
     isSold,
   } = nft;
 
+  let isSelling = true;
+  let status = TokenStatus.EXCHANGE_AUCTION;
+
   //const dispatch = useDispatch();
 
 //   useEffect(() => {
@@ -66,6 +84,7 @@ const Item = () => {
 //       dispatch(removeSelectedNft());
 //     };
 //   }, [nftId]);
+
 
   async function putForSale(id: string, price: number) {
     // try {
@@ -101,84 +120,83 @@ const Item = () => {
     // }
   }
 
-  const [value, setValue] = React.useState<Date | null>(new Date())
-
-  const Fixed = () => {
-    return (
-      <div>
-        fixed price 
-
-        <TextField
-          id="standard-number"
-          type="number"
-          label={'margin="normal"'}
-        />
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-
-        <DateTimePicker
-          renderInput={(props) => <TextField {...props} />}
-          label="DateTimePicker"
-          value={value}
-          ampm={false}
-          onChange={(newValue) => {
-            setValue(newValue);
-          }}
-        />
-        
-      
-      </LocalizationProvider>
-    
-      </div>
-    )
+  const approveClick = async() => {
+    const provider = await getProvider();
   }
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg" sx={{mt:10, bgcolor: '#cfe8fc'}}>
+      <Container maxWidth="lg" sx={{mt:8}}>
         
         <Grid container spacing={3}>
 
           <Grid item lg={5} md={6} sx={{alignItems: 'center',display: 'flex'}}>
             <img src={image} style={{width: "100%",height: "100%", borderRadius: 10}}/>
-
           </Grid>
 
-          <Grid item lg={7} md={6} >
+          <Grid item lg={7} md={6}>
             <Link to="/">
               <KeyboardBackspaceIcon fontSize="large" />
             </Link>
 
-            <Typography variant="h6" gutterBottom component="div">
-              h6. Heading
-            </Typography>
+            <Card variant="outlined" sx={{borderRadius: 2}}>
+              <CardContent>
+                <Typography gutterBottom variant="h4" display="block" component="div">
+                  <b>Zomby #7373</b>      
 
-            <Button variant="contained" disabled endIcon={<SwapHorizontalCircleIcon />}>
-              Approve
-            </Button>
+                  <Button variant="contained" onClick={approveClick} endIcon={<SwapHorizontalCircleIcon />} style={{float:'right', borderRadius: 10}}>
+                    Approve
+                  </Button>       
+                </Typography>
 
-            <Typography variant="h6" gutterBottom component="div">
-              Sell Model
-            </Typography>
+                <Typography component="div"  sx={{display: 'inline', mr: '6%',}}>
+                  Owned by CCSs2c11 
+                </Typography>
 
-            <FormControl>
-              <RadioGroup
-                defaultValue="fixed"
-                name="radio-buttons-group"
-              >
-                <FormControlLabel value="fixed" control={<Radio />} label={<Fixed/>} />
-                <FormControlLabel value="dutch" control={<Radio />} label="DutchAuction" />
-                <FormControlLabel value="english" control={<Radio />} label="EnglishAuction" />
-                <FormControlLabel value="exchange" control={<Radio />} label="ExchangeAuction" />
-              </RadioGroup>
-            </FormControl>
+                <Chip icon={<VisibilityIcon />} label="146 views" size="small"/>
 
+                <br />
+                <br />
+
+                <Typography variant="body1" color="text.secondary">
+                  Lizards are a widespread group of squamate reptiles, with over 6,000
+                  species, ranging across all continents except Antarctica
+                </Typography>
+
+                <br />
+              </CardContent>
+
+              {
+                isSelling ? <AuctionDetail tokenId={tokenId} status={status}/> : <Auction tokenId={tokenId}/>
+              }
+              
+            
+            </Card>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Card variant="outlined" sx={{borderRadius: 2}}>
+                <CardContent>
+                  <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                    Word of the Day
+                  </Typography>
+                  <Typography variant="h5" component="div">
+                    111
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    adjective
+                  </Typography>
+                  <Typography variant="body2">
+                    well meaning and kindly.
+                    <br />
+                    {'"a benevolent smile"'}
+                  </Typography>
+                </CardContent>
+            </Card>
           </Grid>
 
         </Grid>
       </Container>
-
-
-
     </React.Fragment>
     
     

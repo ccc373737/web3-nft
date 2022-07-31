@@ -6,7 +6,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { ethers } from "ethers";
-import getProvider from "../utils/Web3Util";
+import {getProvider} from "../utils/Web3Util";
 import store from '../state';
 import Temp from "../contracts/Temp.json";
 
