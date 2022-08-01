@@ -5,13 +5,15 @@ import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-import {getProvider} from "../utils/Web3Util";
+import { getProvider } from "../utils/Web3Util";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
-import { Box, Container, Grid, Typography, FormControl, FormLabel,
-         Radio, RadioGroup, FormControlLabel, CardContent,
-         Card, Chip } from '@mui/material';
+import {
+  Box, Container, Grid, Typography, FormControl, FormLabel,
+  Radio, RadioGroup, FormControlLabel, CardContent,
+  Card, Chip
+} from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -22,43 +24,46 @@ import { ReactComponent as EthereumLogo } from "../assets/ethereum_logo.svg";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Auction from '../components/Auction';
 import AuctionDetail from "../components/AuctionDetail";
+import History from "../components/History";
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
-declare let window:any;
+declare let window: any;
 
 export enum TokenStatus {
-  NORMAL, 
-  FIXED_PRICE, 
-  DUCTCH_AUCTION, 
-  ENGLISH_AUCTION, 
-  EXCHANGE_AUCTION, 
+  NORMAL,
+  FIXED_PRICE,
+  DUCTCH_AUCTION,
+  ENGLISH_AUCTION,
+  EXCHANGE_AUCTION,
   EXCHANGED
 }
 
 const Item = () => {
   //const classes = useStyles();
 
-//   const { nftId } = useParams();
-//   const marketplaceContract = useSelector(
-//     (state) => state.allNft.marketplaceContract
-//   );
-//   const account = useSelector((state) => state.allNft.account);
-//   let nft = useSelector((state) => state.nft);
-//   let nftItem = useSelector((state) =>
-//     state.allNft.nft.filter((nft) => nft.tokenId === nftId)
-//   );
+  //   const { nftId } = useParams();
+  //   const marketplaceContract = useSelector(
+  //     (state) => state.allNft.marketplaceContract
+  //   );
+  //   const account = useSelector((state) => state.allNft.account);
+  //   let nft = useSelector((state) => state.nft);
+  //   let nftItem = useSelector((state) =>
+  //     state.allNft.nft.filter((nft) => nft.tokenId === nftId)
+  //   );
   let account = "sdadad";
-  let nft = {tokenId: "12123",
-  name: "ccc",
-  image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
-  price: 20,
-  owner: "mycccc",
-  isForSale: true,
-  description: "sada", 
-  creator: "cccsa",
-  uri: "sdsad",
-  saleId: 1222,
-  isSold: null};
+  let nft = {
+    tokenId: "12123",
+    name: "ccc",
+    image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
+    price: 20,
+    owner: "mycccc",
+    isForSale: true,
+    description: "sada",
+    creator: "cccsa",
+    uri: "sdsad",
+    saleId: 1222,
+    isSold: null
+  };
 
   const {
     image,
@@ -78,12 +83,12 @@ const Item = () => {
 
   //const dispatch = useDispatch();
 
-//   useEffect(() => {
-//     if (nftId && nftId !== "" && nftItem) dispatch(selectedNft(nftItem[0]));
-//     return () => {
-//       dispatch(removeSelectedNft());
-//     };
-//   }, [nftId]);
+  //   useEffect(() => {
+  //     if (nftId && nftId !== "" && nftItem) dispatch(selectedNft(nftItem[0]));
+  //     return () => {
+  //       dispatch(removeSelectedNft());
+  //     };
+  //   }, [nftId]);
 
 
   async function putForSale(id: string, price: number) {
@@ -106,8 +111,8 @@ const Item = () => {
   async function buy(saleId: number, price: number) {
     const provider = await getProvider();
     provider.getBlockNumber().then((result) => {
-            console.log(result)
-        })
+      console.log(result)
+    })
     // try {
     //   const receipt = await marketplaceContract.methods
     //     .buyItem(saleId)
@@ -120,18 +125,18 @@ const Item = () => {
     // }
   }
 
-  const approveClick = async() => {
+  const approveClick = async () => {
     const provider = await getProvider();
   }
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg" sx={{mt:8}}>
-        
+      <Container maxWidth="lg" sx={{ mt: 8 }}>
+
         <Grid container spacing={3}>
 
-          <Grid item lg={5} md={6} sx={{alignItems: 'center',display: 'flex'}}>
-            <img src={image} style={{width: "100%",height: "100%", borderRadius: 10}}/>
+          <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
+            <img src={image} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
           </Grid>
 
           <Grid item lg={7} md={6}>
@@ -139,21 +144,21 @@ const Item = () => {
               <KeyboardBackspaceIcon fontSize="large" />
             </Link>
 
-            <Card variant="outlined" sx={{borderRadius: 2}}>
+            <Card variant="outlined" sx={{ borderRadius: 2 }}>
               <CardContent>
                 <Typography gutterBottom variant="h4" display="block" component="div">
-                  <b>Zomby #7373</b>      
+                  <b>Zomby #7373</b>
 
-                  <Button variant="contained" onClick={approveClick} endIcon={<SwapHorizontalCircleIcon />} style={{float:'right', borderRadius: 10}}>
+                  <Button variant="contained" onClick={approveClick} endIcon={<SwapHorizontalCircleIcon />} style={{ float: 'right', borderRadius: 10 }}>
                     Approve
-                  </Button>       
+                  </Button>
                 </Typography>
 
-                <Typography component="div"  sx={{display: 'inline', mr: '6%',}}>
-                  Owned by CCSs2c11 
+                <Typography component="div" sx={{ display: 'inline', mr: '6%', }}>
+                  Owned by CCSs2c11
                 </Typography>
 
-                <Chip icon={<VisibilityIcon />} label="146 views" size="small"/>
+                <Chip icon={<VisibilityIcon />} label="146 views" size="small" />
 
                 <br />
                 <br />
@@ -167,39 +172,26 @@ const Item = () => {
               </CardContent>
 
               {
-                isSelling ? <AuctionDetail tokenId={tokenId} status={status}/> : <Auction tokenId={tokenId}/>
+                isSelling ? <AuctionDetail tokenId={tokenId} status={status} /> : <Auction tokenId={tokenId} />
               }
-              
-            
+
+
             </Card>
           </Grid>
 
           <Grid item xs={12}>
-            <Card variant="outlined" sx={{borderRadius: 2}}>
-                <CardContent>
-                  <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                    Word of the Day
-                  </Typography>
-                  <Typography variant="h5" component="div">
-                    111
-                  </Typography>
-                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    adjective
-                  </Typography>
-                  <Typography variant="body2">
-                    well meaning and kindly.
-                    <br />
-                    {'"a benevolent smile"'}
-                  </Typography>
-                </CardContent>
+            <Card variant="outlined" sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <History tokenId={tokenId} />
+              </CardContent>
             </Card>
           </Grid>
 
         </Grid>
       </Container>
     </React.Fragment>
-    
-    
+
+
   );
 };
 
