@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-import { getProvider } from "../utils/Web3Util";
+import { getProvider, TokenContract, MarketContract } from "../utils/Web3Util";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
@@ -25,6 +25,10 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Auction from '../components/Auction';
 import AuctionDetail from "../components/AuctionDetail";
 import History from "../components/History";
+import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
+import Token from "../../contract/artifacts/contracts/Token.sol/Token.json"
+import Market from "../../contract/artifacts/contracts/Market.sol/Market.json"
+import { ethers } from "ethers";
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
 declare let window: any;
@@ -52,7 +56,7 @@ const Item = () => {
   //   );
   let account = "sdadad";
   let nft = {
-    tokenId: "12123",
+    tokenId: "0",
     name: "ccc",
     image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
     price: 20,
@@ -77,6 +81,18 @@ const Item = () => {
     isForSale,
     isSold,
   } = nft;
+
+  useEffect(() => {
+    const init = async () => {
+      const state = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
+      console.log(state);
+    }
+
+    init();
+  })
+
+  
+
 
   let isSelling = true;
   let status = TokenStatus.EXCHANGE_AUCTION;
@@ -182,7 +198,7 @@ const Item = () => {
           <Grid item xs={12}>
             <Card variant="outlined" sx={{ borderRadius: 2 }}>
               <CardContent>
-                <History tokenId={tokenId} />
+                {/* <History tokenId={tokenId} /> */}
               </CardContent>
             </Card>
           </Grid>

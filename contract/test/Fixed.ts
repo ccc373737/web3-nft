@@ -17,7 +17,7 @@ describe("Token", function () {
 
     const Market = await ethers.getContractFactory("Market");
     const market = await Market.deploy();
-
+    
     return { token, market, owner, otherAccount };
   }
 

@@ -89,9 +89,9 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
         },
 
         { tokenIdLink: '113', tokenId: '113', image: "sdsad", action: "" },
-        { tokenIdLink: '114', tokenId: '113', image: "sdsad", action: "" },
-        { tokenIdLink: '115', tokenId: '113', image: "sdsad", action: "" },
-        { tokenIdLink: '116', tokenId: '113', image: "sdsad", action: "" }
+        { tokenIdLink: '114', tokenId: '114', image: "sdsad", action: "" },
+        { tokenIdLink: '115', tokenId: '115', image: "sdsad", action: "" },
+        { tokenIdLink: '116', tokenId: '116', image: "sdsad", action: "" }
     ];
 
 
