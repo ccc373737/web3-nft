@@ -36,15 +36,15 @@ contract EnglishAuction is MarketState {
         uint256 minimumAddPrice;
         uint256 startTime;
         uint256 endTime;
-        mapping(address => uint) bidMap;
+        mapping(address => uint256) bidMap;
         address[] bidList;
         address highestBid;
-        uint highestPrice;
+        uint256 highestPrice;
     }
 
     mapping(address => mapping(uint256 => EnglishAuctionOrder)) private _enOrderMap;
 
-    function EnAuctionStart(address nftAddr, uint256 tokenId, uint256 reservePrice, uint256 minimumAddPrice, uint256 endTime) external {
+    function enAuctionStart(address nftAddr, uint256 tokenId, uint256 reservePrice, uint256 minimumAddPrice, uint256 endTime) external {
         require(getStatus(nftAddr, tokenId) == Status.NORMAL, "Can't Sell Again!");
         require(endTime >= block.timestamp, "endTime is needed after startTime");
 
@@ -61,15 +61,17 @@ contract EnglishAuction is MarketState {
         emit EnglishAuctionStart(nftAddr, owner, tokenId, reservePrice, minimumAddPrice, endTime);
     }
 
-    function EnAuctionBid(address nftAddr, uint256 tokenId) external payable inMarket(nftAddr, tokenId) {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+    function enAuctionBid(address nftAddr, uint256 tokenId) external payable inMarket(nftAddr, tokenId) {
+        require(getStatus(nftAddr, tokenId) == Status.ENGLISH_AUCTION, "Not in the auction!");
 
         EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
         require(order.owner != msg.sender, "You are owner");
         require(block.timestamp <= order.endTime, "It's Overed");
 
-        uint256 minimumPrice = getEnAuctionPrice(nftAddr, tokenId) + order.minimumAddPrice;
-        require(msg.value + order.bidMap[msg.sender] >= minimumPrice, "auction value is not enough!");
+        (,,,,,,,,,uint256 nowPirce) = getEnAuction(nftAddr, tokenId);
+        uint256 minimumPrice = nowPirce + order.minimumAddPrice;
+
+        require(msg.value + order.bidMap[msg.sender] >= minimumPrice, "payment is not enough!");
 
         //record new bider
         if (order.bidMap[msg.sender] == 0) {
@@ -84,7 +86,7 @@ contract EnglishAuction is MarketState {
     }
 
     function enAuctionWithdraw(address nftAddr, uint256 tokenId) external {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.ENGLISH_AUCTION, "Not in the auction!");
 
         EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
         require(msg.sender != order.highestBid, "you are highestBider, not allow withdraw!");
@@ -100,7 +102,7 @@ contract EnglishAuction is MarketState {
     }
 
     function enAuctionRevoke(address nftAddr, uint256 tokenId) external inMarket(nftAddr, tokenId) {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.ENGLISH_AUCTION, "Not in the auction!");
         EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
 
         require(order.owner == msg.sender, "Not owner");
@@ -120,7 +122,7 @@ contract EnglishAuction is MarketState {
     }
 
     function enAuctionEnd(address nftAddr, uint256 tokenId) external inMarket(nftAddr, tokenId) {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.ENGLISH_AUCTION, "Not in the auction!");
         EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
 
         require(block.timestamp > order.endTime, "Auction is not finished");
@@ -145,15 +147,40 @@ contract EnglishAuction is MarketState {
         emit EnglishAuctionEnd(nftAddr, order.highestBid, tokenId, order.highestPrice);
     }
 
-    function getEnAuctionPrice(address nftAddr, uint256 tokenId) public view returns(uint256) {
+    function getEnAuction(address nftAddr, uint256 tokenId) public view returns (
+        address owner,
+        uint256 reservePrice,
+        uint256 minimumAddPrice,
+        uint256 startTime,
+        uint256 endTime,
+        address[] memory bidList,
+        uint256[] memory bidPriceList,
+        address highestBid,
+        uint256 highestPrice,
+        uint256 nowPirce
+    ) {
         require(getStatus(nftAddr, tokenId) == Status.ENGLISH_AUCTION, "Not in the auction!");
 
         EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
+
+        owner = order.owner;
+        reservePrice = order.reservePrice;
+        minimumAddPrice = order.minimumAddPrice;
+        startTime = order.startTime;
+        endTime = order.endTime;
+        highestBid = order.highestBid;
+        highestPrice = order.highestPrice;
+        bidList = order.bidList;
+
+        bidPriceList = new uint256[](bidList.length);
+        for (uint256 i = 0; i < bidList.length; i++) {
+            bidPriceList[i] = order.bidMap[bidList[i]];
+        }
         
         if (order.highestBid == address(0)) {
-            return order.reservePrice;
+            nowPirce =  order.reservePrice;
         } else {
-            return order.highestPrice;
+            nowPirce =  order.highestPrice;
         }
     }
 }

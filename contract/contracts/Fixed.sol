@@ -20,14 +20,8 @@ contract Fixed is MarketState {
     function fixedStart(address nftAddr, uint256 tokenId, uint256 price, uint256 endTime) external {
         //only NORMAL
         require(getStatus(nftAddr, tokenId) == Status.NORMAL, "Can't Sell Again!");
+        address owner = transferToThis(nftAddr, tokenId);
 
-        IERC721 nft = IERC721(nftAddr);
-        //check approved
-        require(nft.getApproved(tokenId) == address(this), "unapproved!");
-
-        address owner = nft.ownerOf(tokenId);
-
-        nft.safeTransferFrom(owner, address(this), tokenId);
         _fixedOrderMap[nftAddr][tokenId] = Order(owner, price, endTime);
         setStatus(nftAddr, tokenId, Status.FIXED_PRICE);
 
@@ -54,8 +48,7 @@ contract Fixed is MarketState {
         Order memory order = _fixedOrderMap[nftAddr][tokenId];
         require(order.owner == msg.sender, "Not owner");
 
-        IERC721 nft = IERC721(nftAddr);
-        nft.safeTransferFrom(address(this), order.owner, tokenId);
+        transferToSender(nftAddr, tokenId, order.owner);
 
         setStatus(nftAddr, tokenId, Status.NORMAL);
         delete _fixedOrderMap[nftAddr][tokenId];
@@ -69,10 +62,9 @@ contract Fixed is MarketState {
         Order memory order = _fixedOrderMap[nftAddr][tokenId];
         require(order.owner != msg.sender, "You are owner");
         require(block.timestamp <= order.endTime, "It's Overed");
-        require(msg.value >= order.price, "transaction price is not enough");
+        require(msg.value >= order.price, "payment is not enough");
 
-        IERC721 nft = IERC721(nftAddr);
-        nft.safeTransferFrom(address(this), msg.sender, tokenId);
+        transferToSender(nftAddr, tokenId, msg.sender);
 
         //transfer to seller, excessing transfer to buyer
         payable(order.owner).transfer(order.price);
@@ -83,5 +75,13 @@ contract Fixed is MarketState {
         delete _fixedOrderMap[nftAddr][tokenId];
 
         emit FixedPurchase(nftAddr, msg.sender, tokenId, order.price);
+    }
+
+    function getFixed(address nftAddr, uint256 tokenId) public view returns (address, uint256, uint256) {
+        require(getStatus(nftAddr, tokenId) == Status.FIXED_PRICE, "Not in selling!");
+
+        Order storage order = _fixedOrderMap[nftAddr][tokenId];
+
+        return (order.owner, order.price, order.endTime);
     }
 }

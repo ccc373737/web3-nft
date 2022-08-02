@@ -37,7 +37,7 @@ contract ExchangeAuction is MarketState {
     mapping(address => mapping(uint256 => ExchangeAuctionOrder)) private _exOrderMap;
 
     function exchangeStart(address nftAddr, uint256 tokenId, uint256 endTime) external {
-        require(getStatus(nftAddr, tokenId) == Status.EXCHANGE_AUCTION, "Can't Sell Again!");
+        require(getStatus(nftAddr, tokenId) == Status.NORMAL, "Can't Sell Again!");
 
         address owner = transferToThis(nftAddr, tokenId);
         
@@ -51,7 +51,7 @@ contract ExchangeAuction is MarketState {
     }
 
     function exchangeBid(address nftAddr, uint256 tokenId, uint256 exchangeTokenId) external {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.EXCHANGE_AUCTION, "Not in the auction!");
 
         IERC721 nft = IERC721(nftAddr);
         require(nft.ownerOf(exchangeTokenId) == msg.sender, "You are not owner");
@@ -68,7 +68,7 @@ contract ExchangeAuction is MarketState {
     }
 
     function exchangeWithdraw(address nftAddr, uint256 tokenId, uint256 exchangeTokenId) external inMarket(nftAddr, exchangeTokenId) {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.EXCHANGE_AUCTION, "Not in the auction!");
 
         ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
         require(order.bidMap[exchangeTokenId] == msg.sender, "You are not exchangeTokenId owner");
@@ -80,7 +80,7 @@ contract ExchangeAuction is MarketState {
     }
 
     function exchangeRevoke(address nftAddr, uint256 tokenId) external {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.EXCHANGE_AUCTION, "Not in the auction!");
         ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
 
         require(order.owner == msg.sender, "Not owner");
@@ -100,7 +100,7 @@ contract ExchangeAuction is MarketState {
     }
 
     function exchangeEnd(address nftAddr, uint256 tokenId, uint256 exchangeTokenId) external {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        require(getStatus(nftAddr, tokenId) == Status.EXCHANGE_AUCTION, "Not in the auction!");
         ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
 
         require(order.owner == msg.sender, "Not owner");
@@ -125,5 +125,27 @@ contract ExchangeAuction is MarketState {
         delete _exOrderMap[nftAddr][tokenId];
 
         emit ExchangeAuctionEnd(nftAddr, tokenId, exchangeTokenId);
+    }
+
+    function getExchange(address nftAddr, uint256 tokenId) public view returns (
+        address owner,
+        uint256 startTime,
+        uint256 endTime,
+        address[] memory bidList,
+        uint256[] memory bidTokenList
+    ) {
+        require(getStatus(nftAddr, tokenId) == Status.EXCHANGE_AUCTION, "Not in selling!");
+
+        ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
+
+        owner = order.owner;
+        startTime = order.startTime;
+        endTime = order.endTime;
+        bidTokenList = order.bidTokenList;
+
+        bidList = new address[](bidTokenList.length);
+        for (uint256 i = 0; i < bidTokenList.length; i++) {
+            bidList[i] = order.bidMap[bidTokenList[i]];
+        }
     }
 }

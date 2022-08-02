@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "./MarketState.sol";
+import "hardhat/console.sol";
 
 contract DutchAuction is MarketState {
     event DutchAuctionStart(address indexed nftAddr, 
@@ -21,7 +22,7 @@ contract DutchAuction is MarketState {
                              uint256 indexed tokenId);
 
     //decay time interval         
-    uint256 public constant DUTCH_AUCTION_DROP_INTERVAL = 1 minutes;
+    uint256 public constant DUTCH_AUCTION_DROP_INTERVAL = 1 seconds;
 
     struct DutchAuctionOrder {
         address owner;
@@ -49,19 +50,6 @@ contract DutchAuction is MarketState {
         emit DutchAuctionStart(nftAddr, owner, tokenId, price, floorPrice, endTime);
     }
 
-    function getDuAuctionPrice(address nftAddr, uint256 tokenId) public view returns (uint256) {
-        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
-        
-        DutchAuctionOrder memory order = _duOrderMap[nftAddr][tokenId];
-
-        if (block.timestamp > order.endTime) {
-            return order.floorPrice;
-        } else {
-            uint256 step = (block.timestamp - order.startTime) / DUTCH_AUCTION_DROP_INTERVAL;
-            return order.startPrice - (step * order.discountRate);
-        }
-    }
-
     function duAuctionBid(address nftAddr, uint256 tokenId) external payable inMarket(nftAddr, tokenId) {
         require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
 
@@ -69,11 +57,10 @@ contract DutchAuction is MarketState {
         require(order.owner != msg.sender, "You are owner");
         require(block.timestamp <= order.endTime, "It's Overed");
 
-        uint256 nowPrice = getDuAuctionPrice(nftAddr, tokenId);
-        require(msg.value >= nowPrice, "auction value is not enough!");
+        (,,,,,uint256 nowPrice) = getDuAuction(nftAddr, tokenId);
+        require(msg.value >= nowPrice, "payment is not enough!");
 
-        IERC721 nft = IERC721(nftAddr);
-        nft.safeTransferFrom(address(this), msg.sender, tokenId);
+        transferToSender(nftAddr, tokenId, msg.sender);
 
         //transfer to seller, excessing transfer to buyer
         payable(order.owner).transfer(nowPrice);
@@ -97,5 +84,31 @@ contract DutchAuction is MarketState {
         delete _duOrderMap[nftAddr][tokenId];
 
         emit DutchAuctionRevoke(nftAddr, order.owner, tokenId);
+    }
+
+    function getDuAuction(address nftAddr, uint256 tokenId) public view returns 
+    (address owner,
+     uint256 startPrice,
+     uint256 floorPrice,
+     uint256 startTime,
+     uint256 endTime,
+     uint256 nowPrice
+    ) {
+        require(getStatus(nftAddr, tokenId) == Status.DUCTCH_AUCTION, "Not in the auction!");
+        
+        DutchAuctionOrder memory order = _duOrderMap[nftAddr][tokenId];
+        owner = order.owner;
+        startPrice = order.startPrice;
+        floorPrice = order.floorPrice;
+        startTime = order.startTime;
+        endTime = order.endTime;
+
+        if (block.timestamp > order.endTime) {
+            nowPrice = order.floorPrice;
+        } else {
+            console.log(block.timestamp);
+            uint256 step = (block.timestamp - order.startTime) / DUTCH_AUCTION_DROP_INTERVAL;
+            nowPrice = order.startPrice - (step * order.discountRate);
+        }
     }
 }
