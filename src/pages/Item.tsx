@@ -26,9 +26,9 @@ import Auction from '../components/Auction';
 import AuctionDetail from "../components/AuctionDetail";
 import History from "../components/History";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
-import Token from "../../contract/artifacts/contracts/Token.sol/Token.json"
-import Market from "../../contract/artifacts/contracts/Market.sol/Market.json"
 import { ethers } from "ethers";
+import Token from "../../contract/artifacts/contracts/Token.sol/Token.json";
+import Market from "../../contract/artifacts/contracts/Market.sol/Market.json";
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
 
@@ -53,27 +53,6 @@ const Item = () => {
   //   let nftItem = useSelector((state) =>
   //     state.allNft.nft.filter((nft) => nft.tokenId === nftId)
   //   );
-  let account = "sdadad";
-  let nft = {
-    name: "ccc",
-    price: 20,
-    isForSale: true,
-    description: "sada",
-    creator: "cccsa",
-    uri: "sdsad",
-    saleId: 1222,
-    isSold: null
-  };
-
-  const {
-    name,
-    price,
-    creator,
-    description,
-    saleId,
-    isForSale,
-    isSold,
-  } = nft
 
   const { tokenId } = useParams();
 
@@ -89,23 +68,22 @@ const Item = () => {
     //image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
   });
 
-  useMemo(() => {
+  useEffect(() => {
     const init = async () => {
       let status = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
       let owner = await TokenContract().ownerOf(tokenId);
-      //let url = await TokenContract().tokenURI(tokenId);
-      let url = "sss";
+      let url = await TokenContract().tokenURI(tokenId);
+      //let url = "sss";
       let description = "Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging across all continents except Antarctica";
 
-      let currentAccount = getAccount();
-      console.log(currentAccount);
+      let currentAccount = await getAccount();
       let isLogin = currentAccount != null;
-      let isOwner = isLogin ? false : currentAccount == owner;
-      let isApproved = isLogin ? false : (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS;
-
+      let isOwner = isLogin ? currentAccount == owner : false;
+      let isApproved = isLogin ? (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS : false;
+      
       setTokenData({
         ...tokenData,
-        status: TokenStatus.NORMAL,
+        status: status,
         image: url,
         owner: owner,
         description: description,
@@ -114,22 +92,11 @@ const Item = () => {
         isApproved: isApproved
       })
     }
-
     init();
-  }, [tokenData]);
+  }, [tokenData.status, tokenData.isLogin, tokenData.isApproved]);
 
 
   let isSelling = true;
-
-  //const dispatch = useDispatch();
-
-  //   useEffect(() => {
-  //     if (nftId && nftId !== "" && nftItem) dispatch(selectedNft(nftItem[0]));
-  //     return () => {
-  //       dispatch(removeSelectedNft());
-  //     };
-  //   }, [nftId]);
-
 
   async function putForSale(id: string, price: number) {
     // try {
@@ -167,6 +134,32 @@ const Item = () => {
 
   const approveClick = async () => {
     const provider = await getProvider();
+
+    if (getAccount() == null) {
+      return;
+    }
+
+    if (!tokenData.isLogin) {
+      setTokenData({
+        ...tokenData, 
+        isLogin: true,
+        isOwner: (await getAccount()) == tokenData.owner,
+        isApproved: (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS
+      })
+    }
+
+    if (tokenData.isApproved) {
+      return;
+    }
+
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(TOKEN_ADDRESS, Token.abi, signer);
+
+    contract.approve(MARKET_ADDRESS, tokenData.tokenId).then((resolve: any) => {
+      console.log(resolve)
+    }).catch((err: any)=>{
+      console.log(err)
+    })
   }
 
   return (
@@ -193,7 +186,9 @@ const Item = () => {
                     onClick={approveClick}
                     endIcon={<SwapHorizontalCircleIcon />}
                     style={{ float: 'right', borderRadius: 10}}
-                    sx={{display: (tokenData.isOwner || !tokenData.isLogin) ? "true" : "none"}}>
+                    sx={{display: (tokenData.status == TokenStatus.NORMAL && (tokenData.isOwner || !tokenData.isLogin)) ? "true" : "none"}}
+                    disabled={tokenData.isApproved}
+                    >
                     Approve
                   </Button>
                 </Typography>
@@ -215,7 +210,7 @@ const Item = () => {
               </CardContent>
 
               {
-                isSelling ? <AuctionDetail tokenId={tokenId as string} status={tokenData.status} /> : <Auction tokenId={tokenId as string} />
+                (tokenData.status == TokenStatus.NORMAL && tokenData.isOwner) ? <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} /> : <AuctionDetail tokenId={tokenId as string} status={tokenData.status} />
               }
 
 

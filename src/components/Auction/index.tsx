@@ -25,45 +25,39 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import SellIcon from '@mui/icons-material/Sell';
+import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../../constants/addressed";
+import { ethers } from "ethers";
+import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
+import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
 
 
-const Auction = ({ tokenId }: { tokenId: string }) => {
+
+const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean }) => {
     let currentAccount = getAccount();
 
-    let isLogin = currentAccount != null;
-    let isOwner = false;
-    let isApprove = false;
-
-    if (isLogin) {
-        isOwner = true;
-        isApprove = true;
-    }
-
-
-    const [formData, setFormData] = useState({
-        sellMode: "",
-        description: "",
-        endTime: null
-    });
+    const [mode, setMode] = useState('');
 
     function handleModeChange(event: any) {
-        let { name, value } = event.target;
-
-        
-        // if(name === 'image'){
-        //   value = event.target.files[0];
-        // }
-        setFormData({ ...formData, [name]: value });
+        setMode(event.target.value);
     }
 
-    const sellClick = (event: any) => {
+    const sellClick = async (event: any) => {
         event.preventDefault();
-        console.log(event.target.price.value);
-        console.log(event.target.endTime.value);
+        const provider = await getProvider();
+
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
+
+        if (mode == "fixed") {
+            contract.fixedStart(TOKEN_ADDRESS, tokenId, ethers.utils.parseEther(event.target.price.value), Date.parse(event.target.endTime.value))
+        } else if (mode == "dutch") {
+        } else if (mode == "dutch") {
+        } else if (mode == "english") {
+        }
     }
 
     const Mode = () => {
-        if (formData.sellMode == "fixed") {
+        if (mode == "fixed") {
             return (
                 <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
@@ -72,6 +66,9 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
                             label="Price"
                             name="price"
                             type="number"
+                            inputProps={{
+                                step: 0.01,
+                            }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -100,7 +97,7 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
                     </Grid>
                 </React.Fragment>
             )
-        } else if (formData.sellMode == "dutch") {
+        } else if (mode == "dutch") {
             return (
                 <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
@@ -158,7 +155,7 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
                 </React.Fragment>
 
             )
-        } else if (formData.sellMode == "english") {
+        } else if (mode == "english") {
             return (
                 <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
@@ -214,20 +211,20 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
                         />
                     </Grid>
                 </React.Fragment>)
-        } else if (formData.sellMode == "exchange") {
+        } else if (mode == "exchange") {
             return (<React.Fragment>
                 <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
-                        <TextField
-                            required
-                            label="End Time"
-                            name="endTime"
-                            type="datetime-local"
-                            sx={{ width: 250 }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-                    </Grid>
+                    <TextField
+                        required
+                        label="End Time"
+                        name="endTime"
+                        type="datetime-local"
+                        sx={{ width: 250 }}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Grid>
             </React.Fragment>)
         }
 
@@ -236,15 +233,15 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
 
     return (
         <React.Fragment>
-            {isOwner && isLogin && (
+            {(
                 <React.Fragment>
                     <CardContent>
                         <FormControl>
-                            <RadioGroup value={formData.sellMode} onChange={handleModeChange} name="sellMode" row >
-                                <FormControlLabel value="fixed" disabled={!isApprove} control={<Radio color="primary" />} label="Fixed" />
-                                <FormControlLabel value="dutch" disabled={!isApprove} control={<Radio color="secondary" />} label="DutchAuction" />
-                                <FormControlLabel value="english" disabled={!isApprove} control={<Radio color="error" />} label="EnglishAuction" />
-                                <FormControlLabel value="exchange" disabled={!isApprove} control={<Radio color="warning" />} label="ExchangeAuction" />
+                            <RadioGroup value={mode} onChange={handleModeChange} name="sellMode" row >
+                                <FormControlLabel value="fixed" disabled={!isApproved} control={<Radio color="primary" />} label="Fixed" />
+                                <FormControlLabel value="dutch" disabled={!isApproved} control={<Radio color="secondary" />} label="DutchAuction" />
+                                <FormControlLabel value="english" disabled={!isApproved} control={<Radio color="error" />} label="EnglishAuction" />
+                                <FormControlLabel value="exchange" disabled={!isApproved} control={<Radio color="warning" />} label="ExchangeAuction" />
                             </RadioGroup>
                         </FormControl>
                     </CardContent>
@@ -257,8 +254,8 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
                             <Mode />
 
                             <Grid item lg={12} md={12} >
-                                <Button variant="contained" type="submit" color="primary" disabled={!isApprove}
-                                startIcon={<SellIcon />} size="large" sx={{ borderRadius: 2 }}>
+                                <Button variant="contained" type="submit" color="primary" disabled={!isApproved}
+                                    startIcon={<SellIcon />} size="large" sx={{ borderRadius: 2 }}>
                                     Sell now
                                 </Button>
                             </Grid>
@@ -268,7 +265,6 @@ const Auction = ({ tokenId }: { tokenId: string }) => {
                 </React.Fragment>)}
 
         </React.Fragment>
-
     );
 };
 

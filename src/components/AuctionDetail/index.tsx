@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-import { getProvider, getAccount } from "../../utils/Web3Util";
+import { getProvider, getAccount, TokenContract, MarketContract } from "../../utils/Web3Util";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
@@ -31,7 +31,10 @@ import { TokenStatus } from '../../pages/Item';
 import CountdownTimer from '../CountTimer';
 import NoiseAwareSharpIcon from '@mui/icons-material/NoiseAwareSharp';
 import { blue } from '@mui/material/colors';
-
+import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../../constants/addressed";
+import { ethers } from "ethers";
+import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
+import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
 
 
 const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStatus }) => {
@@ -57,8 +60,8 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
     }
 
     const [formData, setFormData] = useState({
-        sellMode: "",
-        description: "",
+        fixedPrice: "",
+        endTime: "",
     });
 
 
@@ -96,7 +99,15 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
 
 
     const Mode = () => {
+       
         if (status == TokenStatus.FIXED_PRICE) {
+            MarketContract().getFixed(TOKEN_ADDRESS, tokenId).then((result: any) => {
+                //setFormData({ ...formData, fixedPrice: ethers.utils.formatEther(result[1])});
+                console.log(result);
+                console.log(ethers.utils.formatEther(result[1]));
+                console.log(result[2].toNumber());
+            })
+            
             return (
                 <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'flex-start', display: 'flex' }}>
@@ -109,7 +120,7 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
                                     component={EthereumLogo}
                                     viewBox="0 0 400 426.6"
                                     titleAccess="ETH"
-                                /><span>12.45</span>
+                                /><span>{1.54}</span>
                             </Typography>
                         </Stack>
                     </Grid>
@@ -120,9 +131,16 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
                                 AUCTION ENDS IN
                             </Typography>
                             <Typography variant="h4" color="secondary" noWrap>
-                                71%
+                                <CountdownTimer targetDate={1659622740000} />
                             </Typography>
                         </Stack>
+                    </Grid>
+
+                    <Grid item lg={4} md={4}>
+                        <Button variant="contained" type="submit" color="primary"
+                            startIcon={<SellIcon />} style={{ width: 180, height: 53 }} sx={{ borderRadius: 2 }}>
+                            Buy
+                        </Button>
                     </Grid>
                 </React.Fragment>
             )
@@ -331,7 +349,7 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
 
     return (
         <React.Fragment>
-            {isOwner && isLogin && (
+            {(
                 <React.Fragment>
 
                     <form onSubmit={sellClick}>
