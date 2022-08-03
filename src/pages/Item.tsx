@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 //import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-import { getProvider, TokenContract, MarketContract } from "../utils/Web3Util";
+import { getProvider, getAccount, TokenContract, MarketContract } from "../utils/Web3Util";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
@@ -31,7 +31,6 @@ import Market from "../../contract/artifacts/contracts/Market.sol/Market.json"
 import { ethers } from "ethers";
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
-declare let window: any;
 
 export enum TokenStatus {
   NORMAL,
@@ -56,11 +55,8 @@ const Item = () => {
   //   );
   let account = "sdadad";
   let nft = {
-    tokenId: "0",
     name: "ccc",
-    image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
     price: 20,
-    owner: "mycccc",
     isForSale: true,
     description: "sada",
     creator: "cccsa",
@@ -70,32 +66,60 @@ const Item = () => {
   };
 
   const {
-    image,
     name,
     price,
-    owner,
     creator,
     description,
-    tokenId,
     saleId,
     isForSale,
     isSold,
-  } = nft;
+  } = nft
 
-  useEffect(() => {
+  const { tokenId } = useParams();
+
+  const [tokenData, setTokenData] = useState({
+    tokenId: tokenId,
+    status: TokenStatus.NORMAL,
+    image: '',
+    owner: '',
+    description: '',
+    isLogin: true,
+    isOwner: false,
+    isApproved: false
+    //image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
+  });
+
+  useMemo(() => {
     const init = async () => {
-      const state = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
-      console.log(state);
+      let status = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
+      let owner = await TokenContract().ownerOf(tokenId);
+      //let url = await TokenContract().tokenURI(tokenId);
+      let url = "sss";
+      let description = "Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging across all continents except Antarctica";
+
+      let currentAccount = getAccount();
+      console.log(currentAccount);
+      let isLogin = currentAccount != null;
+      let isOwner = isLogin ? false : currentAccount == owner;
+      let isApproved = isLogin ? false : (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS;
+
+      setTokenData({
+        ...tokenData,
+        status: TokenStatus.NORMAL,
+        image: url,
+        owner: owner,
+        description: description,
+        isLogin: isLogin,
+        isOwner: isOwner,
+        isApproved: isApproved
+      })
     }
 
     init();
-  })
-
-  
+  }, [tokenData]);
 
 
   let isSelling = true;
-  let status = TokenStatus.EXCHANGE_AUCTION;
 
   //const dispatch = useDispatch();
 
@@ -152,7 +176,7 @@ const Item = () => {
         <Grid container spacing={3}>
 
           <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
-            <img src={image} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+            <img src={tokenData.image} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
           </Grid>
 
           <Grid item lg={7} md={6}>
@@ -163,15 +187,19 @@ const Item = () => {
             <Card variant="outlined" sx={{ borderRadius: 2 }}>
               <CardContent>
                 <Typography gutterBottom variant="h4" display="block" component="div">
-                  <b>Zomby #7373</b>
+                  <b>Odyssey #{tokenId}</b>
 
-                  <Button variant="contained" onClick={approveClick} endIcon={<SwapHorizontalCircleIcon />} style={{ float: 'right', borderRadius: 10 }}>
+                  <Button variant="contained"
+                    onClick={approveClick}
+                    endIcon={<SwapHorizontalCircleIcon />}
+                    style={{ float: 'right', borderRadius: 10}}
+                    sx={{display: (tokenData.isOwner || !tokenData.isLogin) ? "true" : "none"}}>
                     Approve
                   </Button>
                 </Typography>
 
                 <Typography component="div" sx={{ display: 'inline', mr: '6%', }}>
-                  Owned by CCSs2c11
+                  Owned by {tokenData.owner}
                 </Typography>
 
                 <Chip icon={<VisibilityIcon />} label="146 views" size="small" />
@@ -180,15 +208,14 @@ const Item = () => {
                 <br />
 
                 <Typography variant="body1" color="text.secondary">
-                  Lizards are a widespread group of squamate reptiles, with over 6,000
-                  species, ranging across all continents except Antarctica
+                  {tokenData.description}
                 </Typography>
 
                 <br />
               </CardContent>
 
               {
-                isSelling ? <AuctionDetail tokenId={tokenId} status={status} /> : <Auction tokenId={tokenId} />
+                isSelling ? <AuctionDetail tokenId={tokenId as string} status={tokenData.status} /> : <Auction tokenId={tokenId as string} />
               }
 
 

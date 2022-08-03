@@ -41,7 +41,7 @@ export const getAccount = async () => {
     return store.getState().state.account;
 }
 
-export const TokenContract = () => {
+export const TokenContract = (): Contract => {
     const contractProvider = ethers.providers.getDefaultProvider('ropsten');
     const abi = Token.abi;
 
