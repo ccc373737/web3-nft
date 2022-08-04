@@ -12,8 +12,11 @@ import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import {
   Box, Container, Grid, Typography, FormControl, FormLabel,
   Radio, RadioGroup, FormControlLabel, CardContent,
-  Card, Chip
+  Card, Chip, Skeleton
 } from '@mui/material';
+
+import LoadingButton from "@mui/lab/LoadingButton";
+
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -29,6 +32,8 @@ import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
 import Token from "../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../contract/artifacts/contracts/Market.sol/Market.json";
+import Image from 'material-ui-image'
+
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
 
@@ -42,19 +47,9 @@ export enum TokenStatus {
 }
 
 const Item = () => {
-  //const classes = useStyles();
-
-  //   const { nftId } = useParams();
-  //   const marketplaceContract = useSelector(
-  //     (state) => state.allNft.marketplaceContract
-  //   );
-  //   const account = useSelector((state) => state.allNft.account);
-  //   let nft = useSelector((state) => state.nft);
-  //   let nftItem = useSelector((state) =>
-  //     state.allNft.nft.filter((nft) => nft.tokenId === nftId)
-  //   );
-
   const { tokenId } = useParams();
+
+  const [approveLoading, setApproveLoading] = useState(false);
 
   const [tokenData, setTokenData] = useState({
     tokenId: tokenId,
@@ -62,6 +57,7 @@ const Item = () => {
     image: '',
     owner: '',
     description: '',
+    isLoad: false,
     isLogin: true,
     isOwner: false,
     isApproved: false
@@ -80,7 +76,7 @@ const Item = () => {
       let isLogin = currentAccount != null;
       let isOwner = isLogin ? currentAccount == owner : false;
       let isApproved = isLogin ? (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS : false;
-      
+
       setTokenData({
         ...tokenData,
         status: status,
@@ -89,14 +85,13 @@ const Item = () => {
         description: description,
         isLogin: isLogin,
         isOwner: isOwner,
-        isApproved: isApproved
+        isApproved: isApproved,
+        isLoad: true
       })
     }
     init();
-  }, [tokenData.status, tokenData.isLogin, tokenData.isApproved]);
+  }, []);
 
-
-  let isSelling = true;
 
   async function putForSale(id: string, price: number) {
     // try {
@@ -135,29 +130,21 @@ const Item = () => {
   const approveClick = async () => {
     const provider = await getProvider();
 
-    if (getAccount() == null) {
-      return;
-    }
+    let acc = await getAccount();
+    let app = await TokenContract().getApproved(tokenId) == MARKET_ADDRESS;
 
-    if (!tokenData.isLogin) {
-      setTokenData({
-        ...tokenData, 
-        isLogin: true,
-        isOwner: (await getAccount()) == tokenData.owner,
-        isApproved: (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS
-      })
-    }
-
-    if (tokenData.isApproved) {
-      return;
-    }
-
+    setTokenData({
+      ...tokenData,
+      isLogin: acc != null,
+      isApproved: app
+    })
+    
     const signer = provider.getSigner();
     const contract = new ethers.Contract(TOKEN_ADDRESS, Token.abi, signer);
 
     contract.approve(MARKET_ADDRESS, tokenData.tokenId).then((resolve: any) => {
       console.log(resolve)
-    }).catch((err: any)=>{
+    }).catch((err: any) => {
       console.log(err)
     })
   }
@@ -169,10 +156,14 @@ const Item = () => {
         <Grid container spacing={3}>
 
           <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
-            <img src={tokenData.image} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+            {
+              tokenData.isLoad ?
+                <img src={tokenData.image} style={{ width: "100%", height: "100%", borderRadius: 10 }} /> :
+                <Skeleton variant="rectangular" width={520} height={520} />
+            }
           </Grid>
 
-          <Grid item lg={7} md={6}>
+          <Grid item lg={7} md={6} sx={{ display: (tokenData.isLoad ? "true" : "none" )}}>
             <Link to="/">
               <KeyboardBackspaceIcon fontSize="large" />
             </Link>
@@ -182,15 +173,17 @@ const Item = () => {
                 <Typography gutterBottom variant="h4" display="block" component="div">
                   <b>Odyssey #{tokenId}</b>
 
-                  <Button variant="contained"
+                  <LoadingButton variant="contained"
                     onClick={approveClick}
                     endIcon={<SwapHorizontalCircleIcon />}
-                    style={{ float: 'right', borderRadius: 10}}
-                    sx={{display: (tokenData.status == TokenStatus.NORMAL && (tokenData.isOwner || !tokenData.isLogin)) ? "true" : "none"}}
+                    style={{ float: 'right', borderRadius: 10 }}
+                    sx={{ display: (tokenData.status == TokenStatus.NORMAL && (tokenData.isOwner || !tokenData.isLogin)) ? "true" : "none" }}
                     disabled={tokenData.isApproved}
-                    >
+                    loadingPosition="end"
+                    loading={approveLoading}
+                  >
                     Approve
-                  </Button>
+                  </LoadingButton>
                 </Typography>
 
                 <Typography component="div" sx={{ display: 'inline', mr: '6%', }}>
