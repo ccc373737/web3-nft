@@ -22,7 +22,6 @@ declare let window: any;
 
 const Header = () => {
   //const account = useSelector((state) => state.allNft.account);
-
   return (
     <React.Fragment>
       <CssBaseline />

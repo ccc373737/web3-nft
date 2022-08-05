@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 //import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -24,6 +24,7 @@ import { ReactComponent as EthereumLogo } from "../assets/ethereum_logo.svg";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Auction from '../components/Auction';
 import AuctionDetail from "../components/AuctionDetail";
+import FixedDetail from "../components/FixedDetail";
 import History from "../components/History";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
@@ -42,28 +43,29 @@ export enum TokenStatus {
 }
 
 const Item = () => {
-  //const classes = useStyles();
-
-  //   const { nftId } = useParams();
-  //   const marketplaceContract = useSelector(
-  //     (state) => state.allNft.marketplaceContract
-  //   );
-  //   const account = useSelector((state) => state.allNft.account);
-  //   let nft = useSelector((state) => state.nft);
-  //   let nftItem = useSelector((state) =>
-  //     state.allNft.nft.filter((nft) => nft.tokenId === nftId)
-  //   );
-
+  console.log("Item Start")
   const { tokenId } = useParams();
 
+  const [status, setStatus] = useState(TokenStatus.NORMAL);
+  const [login, setLogin] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      MarketContract().getStatus(TOKEN_ADDRESS, tokenId).then((result: any) => {
+        setStatus(result);
+      })
+  
+      setLogin(await getAccount() != null)
+    }
+    
+    init();
+  }, []);
+
   const [tokenData, setTokenData] = useState({
-    tokenId: tokenId,
-    status: TokenStatus.NORMAL,
     image: '',
     owner: '',
     description: '',
-    isLogin: true,
-    isOwner: false,
+    approveDisplay: false,
     isApproved: false
     //image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
   });
@@ -71,95 +73,65 @@ const Item = () => {
   useEffect(() => {
     const init = async () => {
       let status = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
-      let owner = await TokenContract().ownerOf(tokenId);
-      let url = await TokenContract().tokenURI(tokenId);
-      //let url = "sss";
+
+      let owner = tokenData.owner
+      if (status == TokenStatus.NORMAL) {
+        owner = await TokenContract().ownerOf(tokenId);
+      }
+
+      //let url = await TokenContract().tokenURI(tokenId);
+      let url = "sss";
       let description = "Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging across all continents except Antarctica";
 
       let currentAccount = await getAccount();
-      let isLogin = currentAccount != null;
-      let isOwner = isLogin ? currentAccount == owner : false;
-      let isApproved = isLogin ? (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS : false;
-      
+      let approveDisplay = status == TokenStatus.NORMAL && (currentAccount == null || currentAccount == owner);
+      let isApproved = approveDisplay && (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS;
+
       setTokenData({
         ...tokenData,
-        status: status,
         image: url,
         owner: owner,
         description: description,
-        isLogin: isLogin,
-        isOwner: isOwner,
+        approveDisplay: approveDisplay,
         isApproved: isApproved
       })
     }
     init();
-  }, [tokenData.status, tokenData.isLogin, tokenData.isApproved]);
+  }, [status, login]);
 
+  const logIn = async () => {
+    await getProvider();
 
-  let isSelling = true;
-
-  async function putForSale(id: string, price: number) {
-    // try {
-    //   // const itemIdex = getItemIndexBuyTokenId(id);
-
-    //   // const marketAddress = ArtMarketplace.networks[1337].address;
-    //   // await artTokenContract.methods.approve(marketAddress, items[itemIdex].tokenId).send({from: accounts[0]});
-
-    //   const receipt = await marketplaceContract.methods
-    //     .putItemForSale(id, price)
-    //     .send({ gas: 210000, from: account });
-    //   console.log(receipt);
-    // } catch (error) {
-    //   console.error("Error, puting for sale: ", error);
-    //   alert("Error while puting for sale!");
-    // }
-  }
-
-  async function buy(saleId: number, price: number) {
-    const provider = await getProvider();
-    provider.getBlockNumber().then((result) => {
-      console.log(result)
-    })
-    // try {
-    //   const receipt = await marketplaceContract.methods
-    //     .buyItem(saleId)
-    //     .send({ gas: 210000, value: price, from: account });
-    //   console.log(receipt);
-    //   const id = receipt.events.itemSold.id; ///saleId
-    // } catch (error) {
-    //   console.error("Error, buying: ", error);
-    //   alert("Error while buying!");
-    // }
+    if (await getAccount() != null) {
+      setLogin(true);
+    }
   }
 
   const approveClick = async () => {
+    if (!login) {
+      logIn();
+      return;
+    }
+
     const provider = await getProvider();
-
-    if (getAccount() == null) {
-      return;
-    }
-
-    if (!tokenData.isLogin) {
-      setTokenData({
-        ...tokenData, 
-        isLogin: true,
-        isOwner: (await getAccount()) == tokenData.owner,
-        isApproved: (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS
-      })
-    }
-
-    if (tokenData.isApproved) {
-      return;
-    }
-
     const signer = provider.getSigner();
     const contract = new ethers.Contract(TOKEN_ADDRESS, Token.abi, signer);
 
-    contract.approve(MARKET_ADDRESS, tokenData.tokenId).then((resolve: any) => {
+    contract.approve(MARKET_ADDRESS, tokenId).then((resolve: any) => {
       console.log(resolve)
-    }).catch((err: any)=>{
+    }).catch((err: any) => {
       console.log(err)
     })
+  }
+
+  const AuctionCom = () => {
+    if (status == TokenStatus.NORMAL) {
+      return <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} />
+    } else if (status == TokenStatus.FIXED_PRICE) {
+      return<FixedDetail tokenId={tokenId as string}/>
+    }
+
+    return <></>
   }
 
   return (
@@ -185,16 +157,16 @@ const Item = () => {
                   <Button variant="contained"
                     onClick={approveClick}
                     endIcon={<SwapHorizontalCircleIcon />}
-                    style={{ float: 'right', borderRadius: 10}}
-                    sx={{display: (tokenData.status == TokenStatus.NORMAL && (tokenData.isOwner || !tokenData.isLogin)) ? "true" : "none"}}
+                    style={{ float: 'right', borderRadius: 10 }}
+                    sx={{ display: tokenData.approveDisplay ? "true" : "none" }}
                     disabled={tokenData.isApproved}
-                    >
+                  >
                     Approve
                   </Button>
-                </Typography>
+                </Typography> 
 
                 <Typography component="div" sx={{ display: 'inline', mr: '6%', }}>
-                  Owned by {tokenData.owner}
+                  Owned by {0x11111}
                 </Typography>
 
                 <Chip icon={<VisibilityIcon />} label="146 views" size="small" />
@@ -209,10 +181,7 @@ const Item = () => {
                 <br />
               </CardContent>
 
-              {
-                (tokenData.status == TokenStatus.NORMAL && tokenData.isOwner) ? <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} /> : <AuctionDetail tokenId={tokenId as string} status={tokenData.status} />
-              }
-
+              <AuctionCom/>
 
             </Card>
           </Grid>

@@ -30,10 +30,20 @@ const getReturnValues = (countDown: number) => {
     return [days, hours, minutes, seconds];
 };
 
-const CountdownTimer = ({ targetDate }: { targetDate: number }) => {
+const CountdownTimer = ({ targetDate }: { targetDate: number}) => {
     const [days, hours, minutes, seconds] = useCountdown(targetDate);
 
-    if (days + hours + minutes + seconds <= 0) {
+    if (targetDate == 0) {
+        return (
+            <div>
+                <span>Loading...</span>
+            </div>
+        )
+    }else if (days + hours + minutes + seconds <= 0) {
+        console.log(11111111)
+        console.log(targetDate)
+        console.log(days, hours, minutes, seconds);
+        
         return (
             <div>
                 <span>Time is over 🔥</span>

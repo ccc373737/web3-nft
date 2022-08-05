@@ -36,8 +36,10 @@ import { ethers } from "ethers";
 import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
 
+const AuctionDetail = (
+    { tokenId, status, logIn }: 
+    { tokenId: string, status: TokenStatus, logIn:() => void}) => {
 
-const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStatus }) => {
     let currentAccount = getAccount();
 
     let isLogin = currentAccount != null;
@@ -47,7 +49,7 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
         isOwner = true;
     }
 
-    let endTime = new Date().setHours(new Date().getHours() + 1)
+    let endTime = 111111;
 
     const [open, setOpen] = React.useState(false);
 
@@ -64,6 +66,38 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
         endTime: "",
     });
 
+    const [Detail, setDetail] = useState({
+        isLoad: false,
+        isOwner: false,
+        fixedPrice: '',
+        fixedEndTime: 0
+    });
+
+    useEffect(() => {
+        const init = async () => {
+            let result = await MarketContract().getFixed(TOKEN_ADDRESS, tokenId);
+            console.log(result)
+            if (status == TokenStatus.FIXED_PRICE) {
+                setDetail({
+                    isLoad: true,
+                    isOwner: (await getAccount()) == result[0],
+                    fixedPrice: ethers.utils.formatEther(result[1]),
+                    fixedEndTime: result[2].toNumber()
+                })
+            }
+        }
+        init();
+    }, [status]);
+
+    const fixedCancel = async () => {
+        if (await getAccount() == null) {
+            logIn();
+        }
+    }
+
+    const fixedBuy = () => {
+
+    }
 
     function handleModeChange(event: any) {
         let { name, value } = event.target;
@@ -99,15 +133,8 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
 
 
     const Mode = () => {
-       
         if (status == TokenStatus.FIXED_PRICE) {
-            MarketContract().getFixed(TOKEN_ADDRESS, tokenId).then((result: any) => {
-                //setFormData({ ...formData, fixedPrice: ethers.utils.formatEther(result[1])});
-                console.log(result);
-                console.log(ethers.utils.formatEther(result[1]));
-                console.log(result[2].toNumber());
-            })
-            
+            console.log("mode111")
             return (
                 <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'flex-start', display: 'flex' }}>
@@ -120,7 +147,7 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
                                     component={EthereumLogo}
                                     viewBox="0 0 400 426.6"
                                     titleAccess="ETH"
-                                /><span>{1.54}</span>
+                                /><span>{Detail.fixedPrice}</span>
                             </Typography>
                         </Stack>
                     </Grid>
@@ -131,17 +158,29 @@ const AuctionDetail = ({ tokenId, status }: { tokenId: string, status: TokenStat
                                 AUCTION ENDS IN
                             </Typography>
                             <Typography variant="h4" color="secondary" noWrap>
-                                <CountdownTimer targetDate={1659622740000} />
+                                <CountdownTimer targetDate={Detail.fixedEndTime} />
                             </Typography>
                         </Stack>
                     </Grid>
 
-                    <Grid item lg={4} md={4}>
-                        <Button variant="contained" type="submit" color="primary"
-                            startIcon={<SellIcon />} style={{ width: 180, height: 53 }} sx={{ borderRadius: 2 }}>
-                            Buy
-                        </Button>
-                    </Grid>
+                    {
+                        Detail.isLoad ?
+                            (Detail.isOwner ?
+                                (<Grid item lg={4} md={4}>
+                                    <Button variant="contained" type="submit" color="primary" onClick={fixedCancel}
+                                        startIcon={<SellIcon />} style={{ width: 180, height: 53 }} sx={{ borderRadius: 2 }}>
+                                        Cancel
+                                    </Button>
+                                </Grid>) : 
+                                (<Grid item lg={4} md={4}>
+                                    <Button variant="contained" type="submit" color="primary" onClick={fixedBuy}
+                                        startIcon={<SellIcon />} style={{ width: 180, height: 53 }} sx={{ borderRadius: 2 }}>
+                                        Buy
+                                    </Button>
+                                </Grid>)) : <></>
+                    }
+
+
                 </React.Fragment>
             )
         } else if (status == TokenStatus.DUCTCH_AUCTION) {
