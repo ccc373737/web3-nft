@@ -99,7 +99,6 @@ const FixedDetail = (
                             </Typography>
                         </Stack>
                     </Grid>
-
                     {
                         detail.isLoad ?
                             (detail.isOwner ?

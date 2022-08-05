@@ -12,8 +12,11 @@ import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import {
   Box, Container, Grid, Typography, FormControl, FormLabel,
   Radio, RadioGroup, FormControlLabel, CardContent,
-  Card, Chip
+  Card, Chip, Skeleton
 } from '@mui/material';
+
+import LoadingButton from "@mui/lab/LoadingButton";
+
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -30,6 +33,8 @@ import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
 import Token from "../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../contract/artifacts/contracts/Market.sol/Market.json";
+import Image from 'material-ui-image'
+
 
 //import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
 
@@ -65,7 +70,9 @@ const Item = () => {
     image: '',
     owner: '',
     description: '',
-    approveDisplay: false,
+    isLoad: false,
+    isLogin: true,
+    isOwner: false,
     isApproved: false
     //image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
   });
@@ -84,20 +91,28 @@ const Item = () => {
       let description = "Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging across all continents except Antarctica";
 
       let currentAccount = await getAccount();
-      let approveDisplay = status == TokenStatus.NORMAL && (currentAccount == null || currentAccount == owner);
-      let isApproved = approveDisplay && (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS;
+      let isLogin = currentAccount != null;
+      let isOwner = isLogin ? currentAccount == owner : false;
+      let isApproved = isLogin ? (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS : false;
 
       setTokenData({
         ...tokenData,
         image: url,
         owner: owner,
         description: description,
-        approveDisplay: approveDisplay,
-        isApproved: isApproved
+        isLogin: isLogin,
+        isOwner: isOwner,
+        isApproved: isApproved,
+        isLoad: true
       })
     }
     init();
-  }, [status, login]);
+  }, []);
+
+
+  async function putForSale(id: string, price: number) {
+    // try {
+    //   // const itemIdex = getItemIndexBuyTokenId(id);
 
   const logIn = async () => {
     await getProvider();
@@ -108,12 +123,17 @@ const Item = () => {
   }
 
   const approveClick = async () => {
-    if (!login) {
-      logIn();
-      return;
-    }
-
     const provider = await getProvider();
+
+    let acc = await getAccount();
+    let app = await TokenContract().getApproved(tokenId) == MARKET_ADDRESS;
+
+    setTokenData({
+      ...tokenData,
+      isLogin: acc != null,
+      isApproved: app
+    })
+    
     const signer = provider.getSigner();
     const contract = new ethers.Contract(TOKEN_ADDRESS, Token.abi, signer);
 
@@ -141,10 +161,14 @@ const Item = () => {
         <Grid container spacing={3}>
 
           <Grid item lg={5} md={6} sx={{ alignItems: 'center', display: 'flex' }}>
-            <img src={tokenData.image} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+            {
+              tokenData.isLoad ?
+                <img src={tokenData.image} style={{ width: "100%", height: "100%", borderRadius: 10 }} /> :
+                <Skeleton variant="rectangular" width={520} height={520} />
+            }
           </Grid>
 
-          <Grid item lg={7} md={6}>
+          <Grid item lg={7} md={6} sx={{ display: (tokenData.isLoad ? "true" : "none" )}}>
             <Link to="/">
               <KeyboardBackspaceIcon fontSize="large" />
             </Link>
@@ -154,16 +178,17 @@ const Item = () => {
                 <Typography gutterBottom variant="h4" display="block" component="div">
                   <b>Odyssey #{tokenId}</b>
 
-                  <Button variant="contained"
+                  <LoadingButton variant="contained"
                     onClick={approveClick}
                     endIcon={<SwapHorizontalCircleIcon />}
                     style={{ float: 'right', borderRadius: 10 }}
-                    sx={{ display: tokenData.approveDisplay ? "true" : "none" }}
+                    sx={{ display: (status == TokenStatus.NORMAL && (tokenData.isOwner || !tokenData.isLogin)) ? "true" : "none" }}
                     disabled={tokenData.isApproved}
+                    loadingPosition="end"
                   >
                     Approve
-                  </Button>
-                </Typography> 
+                  </LoadingButton>
+                </Typography>
 
                 <Typography component="div" sx={{ display: 'inline', mr: '6%', }}>
                   Owned by {0x11111}
@@ -201,5 +226,6 @@ const Item = () => {
 
   );
 };
+}
 
 export default Item;
