@@ -35,9 +35,6 @@ import Token from "../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../contract/artifacts/contracts/Market.sol/Market.json";
 import Image from 'material-ui-image'
 
-
-//import { selectedNft, removeSelectedNft } from "../../redux/actions/nftActions";
-
 export enum TokenStatus {
   NORMAL,
   FIXED_PRICE,
@@ -47,31 +44,24 @@ export enum TokenStatus {
   EXCHANGED
 }
 
+export interface FixedDetailData {
+  owner: string,
+  price: string,
+  endTime: number
+}
+
 const Item = () => {
-  console.log("Item Start")
   const { tokenId } = useParams();
 
   const [status, setStatus] = useState(TokenStatus.NORMAL);
+  const [fixedDetailData, setFixedDetailData] = useState<FixedDetailData>({owner:'', price:'', endTime:0});
   const [login, setLogin] = useState(false);
-
-  useEffect(() => {
-    const init = async () => {
-      MarketContract().getStatus(TOKEN_ADDRESS, tokenId).then((result: any) => {
-        setStatus(result);
-      })
-  
-      setLogin(await getAccount() != null)
-    }
-    
-    init();
-  }, []);
 
   const [tokenData, setTokenData] = useState({
     image: '',
     owner: '',
     description: '',
     isLoad: false,
-    isLogin: true,
     isOwner: false,
     isApproved: false
     //image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
@@ -79,15 +69,22 @@ const Item = () => {
 
   useEffect(() => {
     const init = async () => {
+      console.log("init111111")
       let status = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
-
       let owner = tokenData.owner
       if (status == TokenStatus.NORMAL) {
         owner = await TokenContract().ownerOf(tokenId);
+      } else if (status == TokenStatus.FIXED_PRICE) {
+        let detail  = await MarketContract().getFixed(TOKEN_ADDRESS, tokenId);
+        owner = detail[0];
+        setFixedDetailData({owner: owner, price: ethers.utils.formatEther(detail[1]), endTime: detail[2].toNumber()});
+
+      } else if (status == TokenStatus.DUCTCH_AUCTION) {
+      } else if (status == TokenStatus.ENGLISH_AUCTION) {
+      } else if (status == TokenStatus.EXCHANGED) {
       }
 
-      //let url = await TokenContract().tokenURI(tokenId);
-      let url = "sss";
+      let url = await TokenContract().tokenURI(tokenId);
       let description = "Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging across all continents except Antarctica";
 
       let currentAccount = await getAccount();
@@ -95,42 +92,34 @@ const Item = () => {
       let isOwner = isLogin ? currentAccount == owner : false;
       let isApproved = isLogin ? (await TokenContract().getApproved(tokenId)) == MARKET_ADDRESS : false;
 
+      setStatus(status);
+      setLogin(isLogin);
       setTokenData({
         ...tokenData,
         image: url,
         owner: owner,
         description: description,
-        isLogin: isLogin,
         isOwner: isOwner,
         isApproved: isApproved,
         isLoad: true
       })
     }
     init();
-  }, []);
-
-
-  async function putForSale(id: string, price: number) {
-    // try {
-    //   // const itemIdex = getItemIndexBuyTokenId(id);
+  }, [login]);
 
   const logIn = async () => {
-    await getProvider();
-
-    if (await getAccount() != null) {
-      setLogin(true);
+    if (!login) {
+      setLogin(await getAccount() != null);
     }
   }
 
   const approveClick = async () => {
     const provider = await getProvider();
+    await logIn();
 
-    let acc = await getAccount();
     let app = await TokenContract().getApproved(tokenId) == MARKET_ADDRESS;
-
     setTokenData({
       ...tokenData,
-      isLogin: acc != null,
       isApproved: app
     })
     
@@ -146,9 +135,9 @@ const Item = () => {
 
   const AuctionCom = () => {
     if (status == TokenStatus.NORMAL) {
-      return <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} />
+      return (tokenData.isOwner ? <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} /> : <></>)
     } else if (status == TokenStatus.FIXED_PRICE) {
-      return<FixedDetail tokenId={tokenId as string}/>
+      return<FixedDetail tokenId={tokenId as string} detail={fixedDetailData} isOwner={tokenData.isOwner} setLogin={logIn}/>
     }
 
     return <></>
@@ -182,7 +171,7 @@ const Item = () => {
                     onClick={approveClick}
                     endIcon={<SwapHorizontalCircleIcon />}
                     style={{ float: 'right', borderRadius: 10 }}
-                    sx={{ display: (status == TokenStatus.NORMAL && (tokenData.isOwner || !tokenData.isLogin)) ? "true" : "none" }}
+                    sx={{ display: (status == TokenStatus.NORMAL && (tokenData.isOwner || !login)) ? "true" : "none" }}
                     disabled={tokenData.isApproved}
                     loadingPosition="end"
                   >
@@ -191,7 +180,7 @@ const Item = () => {
                 </Typography>
 
                 <Typography component="div" sx={{ display: 'inline', mr: '6%', }}>
-                  Owned by {0x11111}
+                  Owned by {tokenData.owner}
                 </Typography>
 
                 <Chip icon={<VisibilityIcon />} label="146 views" size="small" />
@@ -226,6 +215,5 @@ const Item = () => {
 
   );
 };
-}
 
 export default Item;

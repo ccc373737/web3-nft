@@ -29,13 +29,11 @@ import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../../constants/addressed";
 import { ethers } from "ethers";
 import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
-
-
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean }) => {
-    let currentAccount = getAccount();
-
     const [mode, setMode] = useState('');
+    const [loading, setLoad] = useState(false);
 
     function handleModeChange(event: any) {
         setMode(event.target.value);
@@ -49,7 +47,16 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
         const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
 
         if (mode == "fixed") {
-            contract.fixedStart(TOKEN_ADDRESS, tokenId, ethers.utils.parseEther(event.target.price.value), Date.parse(event.target.endTime.value))
+            contract.fixedStart(TOKEN_ADDRESS, tokenId, ethers.utils.parseEther(event.target.price.value), Date.parse(event.target.endTime.value)).then((resolve: any) => {
+                setLoad(true)
+            }).catch((err: any) => {
+                console.log(err)
+            })
+
+            contract.on("fixedStart", (nftAddr, seller, tokenId, price, endTime, event) => {
+                console.log(event);
+                setLoad(false);
+            });
         } else if (mode == "dutch") {
         } else if (mode == "dutch") {
         } else if (mode == "english") {
@@ -254,10 +261,12 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
                             <Mode />
 
                             <Grid item lg={12} md={12} >
-                                <Button variant="contained" type="submit" color="primary" disabled={!isApproved}
-                                    startIcon={<SellIcon />} size="large" sx={{ borderRadius: 2 }}>
+                                <LoadingButton variant="contained" type="submit" color="primary" disabled={!isApproved}
+                                    startIcon={<SellIcon />} size="large" sx={{ borderRadius: 2 }}
+                                    loading={loading}
+                                    loadingPosition="start">
                                     Sell now
-                                </Button>
+                                </LoadingButton>
                             </Grid>
                         </Grid>
                     </form>
