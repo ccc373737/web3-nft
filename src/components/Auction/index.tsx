@@ -30,9 +30,12 @@ import { ethers } from "ethers";
 import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
 import LoadingButton from "@mui/lab/LoadingButton";
+import {TokenStatus} from "../../pages/Item";
 
-const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean }) => {
-    const [mode, setMode] = useState('');
+const Auction = (
+    { tokenId, isApproved, changeStatus }: 
+    { tokenId: string, isApproved: boolean, changeStatus: (status :TokenStatus) => void }) => {
+    const [mode, setMode] = useState('fixed');
     const [loading, setLoad] = useState(false);
 
     function handleModeChange(event: any) {
@@ -47,19 +50,61 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
         const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
 
         if (mode == "fixed") {
-            contract.fixedStart(TOKEN_ADDRESS, tokenId, ethers.utils.parseEther(event.target.price.value), Date.parse(event.target.endTime.value)).then((resolve: any) => {
+            contract.fixedStart(TOKEN_ADDRESS, tokenId, 
+                ethers.utils.parseEther(event.target.price.value), 
+                Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
                 setLoad(true)
             }).catch((err: any) => {
                 console.log(err)
             })
 
-            contract.on("fixedStart", (nftAddr, seller, tokenId, price, endTime, event) => {
+            contract.on("FixedStart", (nftAddr, seller, tokenId, price, endTime, event) => {
                 console.log(event);
-                setLoad(false);
+                changeStatus(TokenStatus.FIXED_PRICE);
             });
+
         } else if (mode == "dutch") {
-        } else if (mode == "dutch") {
+            contract.duAuctionStart(TOKEN_ADDRESS, tokenId, 
+                ethers.utils.parseEther(event.target.startPrice.value), 
+                ethers.utils.parseEther(event.target.floorPrice.value), 
+                Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
+                setLoad(true)
+            }).catch((err: any) => {
+                console.log(err)
+            })
+
+            contract.on("DutchAuctionStart", (nftAddr, seller, tokenId, price, floorPrice, endTime, event) => {
+                console.log(event);
+                changeStatus(TokenStatus.DUCTCH_AUCTION);
+            });
+            
         } else if (mode == "english") {
+            contract.enAuctionStart(TOKEN_ADDRESS, tokenId, 
+                ethers.utils.parseEther(event.target.reservePrice.value), 
+                ethers.utils.parseEther(event.target.minimumAddPrice.value), 
+                Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
+                setLoad(true)
+            }).catch((err: any) => {
+                console.log(err)
+            })
+
+            contract.on("EnglishAuctionStart", (nftAddr, seller, tokenId, reservePrice, minimumAddPrice, endTime, event) => {
+                console.log(event);
+                changeStatus(TokenStatus.ENGLISH_AUCTION);
+            });
+
+        } else if (mode == "exchange") {
+            contract.exchangeStart(TOKEN_ADDRESS, tokenId, 
+                Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
+                setLoad(true)
+            }).catch((err: any) => {
+                console.log(err)
+            })
+
+            contract.on("ExchangeAuctionStart", (nftAddr, seller, tokenId, event) => {
+                console.log(event);
+                changeStatus(TokenStatus.EXCHANGE_AUCTION);
+            });
         }
     }
 
@@ -113,6 +158,9 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
                             label="StartPrice"
                             name="startPrice"
                             type="number"
+                            inputProps={{
+                                step: 0.01,
+                            }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -133,6 +181,9 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
                             label="FloorPrice"
                             name="floorPrice"
                             type="number"
+                            inputProps={{
+                                step: 0.01,
+                            }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -171,6 +222,9 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
                             label="ReservePrice"
                             name="reservePrice"
                             type="number"
+                            inputProps={{
+                                step: 0.01,
+                            }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -191,6 +245,9 @@ const Auction = ({ tokenId, isApproved }: { tokenId: string, isApproved: boolean
                             label="MinimumAddPrice"
                             name="minimumAddPrice"
                             type="number"
+                            inputProps={{
+                                step: 0.01,
+                            }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">

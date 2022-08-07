@@ -55,14 +55,15 @@ contract ExchangeAuction is MarketState {
 
         IERC721 nft = IERC721(nftAddr);
         require(nft.ownerOf(exchangeTokenId) == msg.sender, "You are not owner");
+        require(getStatus(nftAddr, exchangeTokenId) == Status.NORMAL, "Your token is in selling, Can't exchange!");
 
         ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
         require(block.timestamp <= order.endTime, "It's Overed");
-        require(order.bidMap[exchangeTokenId] == address(0), "The token is already part of the exchange");
 
         transferToThis(nftAddr, exchangeTokenId);
         order.bidMap[exchangeTokenId] = msg.sender;
         order.bidTokenList.push(exchangeTokenId);
+        setStatus(nftAddr, exchangeTokenId, Status.EXCHANGED);
     
         emit ExchangeAuctionBid(nftAddr, msg.sender, tokenId, exchangeTokenId);
     }
@@ -72,9 +73,11 @@ contract ExchangeAuction is MarketState {
 
         ExchangeAuctionOrder storage order = _exOrderMap[nftAddr][tokenId];
         require(order.bidMap[exchangeTokenId] == msg.sender, "You are not exchangeTokenId owner");
+        require(getStatus(nftAddr, exchangeTokenId) == Status.EXCHANGED, "Your token is not in exchanging!");
 
         transferToSender(nftAddr, exchangeTokenId, msg.sender);
         delete order.bidMap[exchangeTokenId];
+        setStatus(nftAddr, exchangeTokenId, Status.NORMAL);
     
         emit ExchangeAuctionWithdraw(nftAddr, msg.sender, tokenId, exchangeTokenId);
     }
@@ -89,6 +92,8 @@ contract ExchangeAuction is MarketState {
         for (uint256 i = 0; i < order.bidTokenList.length; i++) {
             if (order.bidMap[order.bidTokenList[i]] != address(0)) {
                 transferToSender(nftAddr, order.bidTokenList[i], order.bidMap[order.bidTokenList[i]]);
+                delete order.bidMap[order.bidTokenList[i]];
+                setStatus(nftAddr, order.bidTokenList[i], Status.NORMAL);
             }
         }
 
@@ -117,11 +122,14 @@ contract ExchangeAuction is MarketState {
         for (uint256 i = 0; i < order.bidTokenList.length; i++) {
             if (order.bidMap[order.bidTokenList[i]] != address(0)) {
                 transferToSender(nftAddr, order.bidTokenList[i], order.bidMap[order.bidTokenList[i]]);
+                delete order.bidMap[order.bidTokenList[i]];
+                setStatus(nftAddr, order.bidTokenList[i], Status.NORMAL);
             }
         }
 
         //5.reset status and map
         setStatus(nftAddr, tokenId, Status.NORMAL);
+        setStatus(nftAddr, exchangeTokenId, Status.NORMAL);
         delete _exOrderMap[nftAddr][tokenId];
 
         emit ExchangeAuctionEnd(nftAddr, tokenId, exchangeTokenId);

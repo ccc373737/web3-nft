@@ -37,6 +37,7 @@ contract EnglishAuction is MarketState {
         uint256 startTime;
         uint256 endTime;
         mapping(address => uint256) bidMap;
+        mapping(address => bool) bidExistMap;
         address[] bidList;
         address highestBid;
         uint256 highestPrice;
@@ -74,10 +75,11 @@ contract EnglishAuction is MarketState {
         require(msg.value + order.bidMap[msg.sender] >= minimumPrice, "payment is not enough!");
 
         //record new bider
-        if (order.bidMap[msg.sender] == 0) {
+        if (order.bidExistMap[msg.sender] == false) {
             order.bidList.push(msg.sender);
         }
 
+        order.bidExistMap[msg.sender] = true;
         order.bidMap[msg.sender] += msg.value;
         order.highestBid = msg.sender;
         order.highestPrice = order.bidMap[msg.sender];
@@ -126,6 +128,15 @@ contract EnglishAuction is MarketState {
         EnglishAuctionOrder storage order = _enOrderMap[nftAddr][tokenId];
 
         require(block.timestamp > order.endTime, "Auction is not finished");
+
+        if (order.highestBid == address(0)) {
+            transferToSender(nftAddr, tokenId, order.owner);
+            setStatus(nftAddr, tokenId, Status.NORMAL);
+            delete _enOrderMap[nftAddr][tokenId];
+            emit EnglishAuctionEnd(nftAddr, order.highestBid, tokenId, order.highestPrice);
+            return;
+        }
+
         //1.send nft to highestBider
         transferToSender(nftAddr, tokenId, order.highestBid);
         //2.send eth to seller

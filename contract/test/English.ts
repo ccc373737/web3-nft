@@ -27,21 +27,34 @@ describe("English", function () {
       await token.connect(otherAccount).approve(market.address, 0);
       
       console.log('before:', await token.ownerOf(0))
-      await market.connect(otherAccount).enAuctionStart(token.address, 0, ethers.utils.parseEther('1'), ethers.utils.parseEther('0.5'), 1659512260);
+      await market.connect(otherAccount).enAuctionStart(token.address, 0, ethers.utils.parseEther('1'), ethers.utils.parseEther('0.5'), 1659882131);
       console.log('after:', await token.ownerOf(0))
 
       console.log(await market.getStatus(token.address, 0));
       console.log(await market.getEnAuction(token.address, 0));
 
+      //bider1
       await market.enAuctionBid(token.address, 0, {value: ethers.utils.parseEther('1.5')});
       console.log(await market.getEnAuction(token.address, 0));
 
+      //bider2
       let a3 = (await ethers.getSigners())[3];
       await market.connect(a3).enAuctionBid(token.address, 0, {value: ethers.utils.parseEther('2.0')});
       console.log(await market.getEnAuction(token.address, 0));
 
+      //withdraw
       await market.enAuctionWithdraw(token.address, 0);
       console.log(await market.getEnAuction(token.address, 0));
+
+      //bider1
+      await market.enAuctionBid(token.address, 0, {value: ethers.utils.parseEther('2.5')});
+      console.log(await market.getEnAuction(token.address, 0));
+
+      // 
+
+      //revoke
+      await market.connect(otherAccount).enAuctionRevoke(token.address, 0);
+      console.log(await market.getStatus(token.address, 0));
     });
   });
 });

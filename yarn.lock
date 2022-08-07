@@ -2998,6 +2998,13 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
+"@types/react-alert@^7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@types/react-alert/-/react-alert-7.0.2.tgz#c24ff3dbcef1c48d372da12acb9422d831856fb2"
+  integrity sha512-IImZGkaLhsFfDxzvlMHvbo0tE06B9FqXZrVLBr58gfPINRwITPKWap42RinHEFbF/l1yUJeDoR3NTx7hwuh2ng==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-dom@^18.0.0":
   version "18.0.6"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.0.6.tgz#36652900024842b74607a17786b6662dd1e103a1"
@@ -9091,6 +9098,11 @@ nth-check@^2.0.1:
   dependencies:
     boolbase "^1.0.0"
 
+number-precision@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/number-precision/-/number-precision-1.5.2.tgz#22abbde9e2402629199b511deafcdb614e125875"
+  integrity sha512-q7C1ZW3FyjsJ+IpGB6ykX8OWWa5+6M+hEY0zXBlzq1Sq1IPY9GeI3CQ9b2i6CMIYoeSuFhop2Av/OhCxClXqag==
+
 number-to-bn@1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/number-to-bn/-/number-to-bn-1.7.0.tgz#bb3623592f7e5f9e0030b1977bd41a0c53fe1ea0"
@@ -10279,6 +10291,14 @@ raw-body@2.5.1, raw-body@^2.4.1:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
+react-alert@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/react-alert/-/react-alert-7.0.3.tgz#4d47f539c574e1118a84409a077f3a58d161e23b"
+  integrity sha512-cZ2ZhxytECTxljDfBKpQmwWbfJQFzFf2Qf03L/IB5shbEXtWhDD2JjiW60rwmKT1oZoU+GEnUQw5MFM5+f0B6A==
+  dependencies:
+    prop-types "^15.7.2"
+    react-transition-group "^4.4.1"
+
 react-app-polyfill@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-3.0.0.tgz#95221e0a9bd259e5ca6b177c7bb1cb6768f68fd7"
@@ -10378,7 +10398,7 @@ react-router@6.3.0:
   dependencies:
     history "^5.2.0"
 
-react-transition-group@^4.4.0:
+react-transition-group@^4.4.0, react-transition-group@^4.4.1:
   version "4.4.5"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.5.tgz#e53d4e3f3344da8521489fbef8f2581d42becdd1"
   integrity sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==

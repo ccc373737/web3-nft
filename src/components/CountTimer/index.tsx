@@ -40,10 +40,6 @@ const CountdownTimer = ({ targetDate }: { targetDate: number}) => {
             </div>
         )
     }else if (days + hours + minutes + seconds <= 0) {
-        console.log(11111111)
-        console.log(targetDate)
-        console.log(days, hours, minutes, seconds);
-        
         return (
             <div>
                 <span>Time is over 🔥</span>

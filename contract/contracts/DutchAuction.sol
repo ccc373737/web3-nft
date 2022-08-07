@@ -22,7 +22,7 @@ contract DutchAuction is MarketState {
                              uint256 indexed tokenId);
 
     //decay time interval         
-    uint256 public constant DUTCH_AUCTION_DROP_INTERVAL = 1 seconds;
+    uint256 public constant DUTCH_AUCTION_DROP_INTERVAL = 10 minutes;
 
     struct DutchAuctionOrder {
         address owner;
@@ -42,7 +42,7 @@ contract DutchAuction is MarketState {
 
         address owner = transferToThis(nftAddr, tokenId);
         uint256 startTime = block.timestamp;
-        uint256 discountRate = (price - floorPrice) / (endTime - startTime) / DUTCH_AUCTION_DROP_INTERVAL;
+        uint256 discountRate = (price - floorPrice) / (endTime - startTime) * DUTCH_AUCTION_DROP_INTERVAL;
         
         _duOrderMap[nftAddr][tokenId] = DutchAuctionOrder(owner, price, floorPrice, block.timestamp, endTime, discountRate);
 

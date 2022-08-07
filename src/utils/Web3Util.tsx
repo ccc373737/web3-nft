@@ -56,5 +56,7 @@ export const MarketContract = (): Contract  => {
     return new ethers.Contract(MARKET_ADDRESS, abi, contractProvider);
 }
 
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 
 
