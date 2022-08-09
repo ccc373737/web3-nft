@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import CancelOutlinedIcon  from "@mui/icons-material/CancelOutlined";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+import { Button, Stack } from "@mui/material";
 import { ethers } from "ethers";
-import {getProvider} from "../utils/Web3Util";
+import { getProvider } from "../utils/Web3Util";
 import store from '../state';
 import Temp from "../contracts/Temp.json";
+import Image from 'mui-image';
 
 
 import DropZone from "../components/UploadZone";
@@ -16,11 +17,11 @@ import DropZone from "../components/UploadZone";
 //import { api } from "../../services/api";
 
 const CreateNFT = () => {
-    
-//   const account = useSelector((state) => state.allNft.account);
-//   const artTokenContract = useSelector(
-//     (state) => state.allNft.artTokenContract
-//   );
+
+  //   const account = useSelector((state) => state.allNft.account);
+  //   const artTokenContract = useSelector(
+  //     (state) => state.allNft.artTokenContract
+  //   );
 
   const [selectedFile, setSelectedFile] = useState();
   const [formData, setFormData] = useState({
@@ -30,7 +31,7 @@ const CreateNFT = () => {
   });
 
   const contractProvider = ethers.providers.getDefaultProvider('ropsten');
-  const address  = Temp.address;
+  const address = Temp.address;
   const abi = Temp.abi;
 
   const contract = new ethers.Contract(address, abi, contractProvider);
@@ -69,8 +70,8 @@ const CreateNFT = () => {
     console.log(estimatedGasLimit.toNumber());
     //contract1.setTemp(1100);
 
-// // Send 1 DAI to "ricmoo.firefly.eth"
-// tx = daiWithSigner.transfer("ricmoo.firefly.eth", dai);
+    // // Send 1 DAI to "ricmoo.firefly.eth"
+    // tx = daiWithSigner.transfer("ricmoo.firefly.eth", dai);
 
     // provider.getBalance(currentAccount as string).then((result)=>{
     //   console.log(ethers.utils.formatEther(result));
@@ -133,77 +134,34 @@ const CreateNFT = () => {
   }
 
   return (
-    <div style={{width: "100%", maxWidth: "1100px", margin: "0 auto"}}>
-      <form>
-        <div style={{display: "flex", alignItems: "baseline"}}>
+    <div style={{ width: "100%", maxWidth: "1100px", margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "baseline" }}>
 
-          <h1>Create collectible</h1>
+        <h1>Create collectible</h1>
 
-          <Link to="/" style={{marginLeft: "auto", marginRight: "1.5rem"}}>
-            <CancelOutlinedIcon fontSize="large" />
-          </Link>
+        <Link to="/" style={{ marginLeft: "auto", marginRight: "1.5rem" }}>
+          <CancelOutlinedIcon fontSize="large" />
+        </Link>
 
-        </div>
+      </div>
 
-        <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
-          <div>
-            {/* <DropZone onFileUploaded={setSelectedFile} /> */}
-          </div>
-          
-          <fieldset style={{ display: "flex", flexDirection: "column",
-            justifyContent: "space-evenly",
-            alignItems: "center",
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+        <Stack>
+          <Image src="https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f4.png" style={{ width: "50%", borderRadius: 10 }} />
 
-            width: "400px",
-            minWidth: "240px",
-            marginTop: "64px",
-            marginLeft: "2rem",
-            minInlineSize: "auto",
-            border: "0",}}>
-                
-            <TextField
-              label="Title"
-              name="title"
-              variant="filled"
-              required
-              value={formData.title}
-              onChange={handleInputChange}
-              fullWidth
-            />
-            <TextField
-              id="outlined-multiline-static"
-              multiline
-              rows={4}
-              label="Description"
-              name="description"
-              variant="filled"
-              required
-              value={formData.description}
-              onChange={handleInputChange}
-              fullWidth
-            />
-            <TextField
-              label="price"
-              name="price"
-              variant="filled"
-              value={formData.price}
-              onChange={handleInputChange}
-              InputProps={{
-                startAdornment: <InputAdornment position="start">ETH</InputAdornment>,
-              }}
-              fullWidth
-            />
+          <br />
+          <br />
+          <Button variant="contained" color="primary" href="/create-nft"
+            disableElevation className="main-button">
+            Mint
+          </Button>
 
-            <Button variant="contained" color="primary" onClick={create}>
-              Submit
-            </Button>
+          <br />
+          <br />
+        </Stack>
 
-            <Button variant="contained" color="primary" onClick={getTest}>
-              get
-            </Button>
-          </fieldset>
-        </div>
-      </form>
+
+      </div>
     </div>
   );
 };
