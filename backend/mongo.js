@@ -8,8 +8,7 @@ const COLLECTION = "token";
 
 exports.insertOrUpdate = async function insertOrUpdate(tokenAddress, tokenId, param) {
     try {
-        const database = client.db(DB);
-        const coll = database.collection(COLLECTION);
+        const coll = client.db(DB).collection(COLLECTION);
 
         const query = { tokenId: tokenId, tokenAddress: tokenAddress };
         const one = await coll.findOne(query);
@@ -19,16 +18,13 @@ exports.insertOrUpdate = async function insertOrUpdate(tokenAddress, tokenId, pa
             coll.updateOne(query, param);
         }
     } catch (error) {
-        console.log(error)
-    } finally {
-        await client.close();
+        console.error(error)
     }
 }
 
 exports.queryMyTokens = async function queryMyTokens(tokenAddress, owner, status) {
     try {
-        const database = client.db(DB);
-        const coll = database.collection(COLLECTION);
+        const coll = client.db(DB).collection(COLLECTION);
 
         const query = { tokenAddress: tokenAddress, owner: owner };
         if (status != null) {
@@ -42,15 +38,14 @@ exports.queryMyTokens = async function queryMyTokens(tokenAddress, owner, status
         const list = await coll.find(query, options);
 
         return list;
-    } finally {
-        await client.close();
+    } catch (error) {
+        console.error(error)
     }
 }
 
 exports.queryAll = async function queryAll(tokenAddress, pageIndex, pageSize) {
-    try {
-        client.connect();
-        const coll = await client.db(DB).collection(COLLECTION);
+    try { 
+        const coll = client.db(DB).collection(COLLECTION);
 
         const query = {tokenAddress: tokenAddress };
         const options = {
@@ -60,22 +55,21 @@ exports.queryAll = async function queryAll(tokenAddress, pageIndex, pageSize) {
         };
 
         const list = await coll.find(query, options).toArray();
-        return list;
-    } finally {
-        await client.close();
+        return list; 
+    } catch (error) {
+        console.error(error)
     }
 }
 
 exports.queryOne = async function queryOne(tokenAddress, tokenId) {
     try {
-        client.connect();
-        const coll = await client.db(DB).collection(COLLECTION);
+        const coll = client.db(DB).collection(COLLECTION);
 
         const query = { tokenId: tokenId, tokenAddress: tokenAddress };
         const one = await coll.findOne(query);
 
         return one;
-    } finally {
-        await client.close();
+    } catch (error) {
+        console.error(error)
     }
 }

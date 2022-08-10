@@ -1,0 +1,14 @@
+export const TOKEN_LIST = [
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f10.png", desc: "Eat Sr Banano et impera. Product of the mutation of a God Hates NFTs."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f11.png", desc: "When a new medium comes into existence, the capabilities of both the artist and viewer increase in number. The potential subjects within said medium can grow in complexity as well, some fully dependent on the medium that holds them."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f12.png", desc: "Sudfah (Arabic for happy accident is a generative collection celebrating the beauty that can emerge from chaos, mistakes, and accidents."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f13.png", desc: "Sudfah (Arabic for happy accident is a generative collection celebrating the beauty that can emerge from chaos, mistakes, and accidents."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f14.png", desc: "The image is progressively constructed in front of the viewer's eyes. It is a system full of surprises that I'm excited to share with the world."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f15.png", desc: "Fragments of an infinite field” is a compositional system in which an idealized plant species is generated and arranged in a potentially infinite field of foliage."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f16.png", desc: "Flowers is a work in which artist Takashi Murakami’s representative artwork, flowers, are expressed as dot art evocative of Japanese TV games created in the 1970s."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f17.png", desc: "If a strong emotion or pain seizes you, you feel it suddenly."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f18.png", desc: "Journals are great for writing down ideas, taking notes, writing about travels and adventures, describing good and bad times. Writing down your thoughts and ideas is a great way to relieve stress."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f19.png", desc: "BAYC is a collection of 10,000 Bored Ape NFTs. Owning a Bored Ape doubles as your membership to the Club."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f20.png", desc: "Bored Ape Yacht Club, or often colloquially called Bored Apes or Bored Ape, is an non-fungible token collection built on the Ethereum blockchain."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f21.png", desc: "Eat Sr Banano et impera. Product of the mutation of a God Hates NFTs."}
+]

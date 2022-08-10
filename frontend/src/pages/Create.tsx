@@ -1,136 +1,48 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import BuildIcon from '@mui/icons-material/Build';
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-import InputAdornment from '@mui/material/InputAdornment';
-import TextField from "@mui/material/TextField";
-import { Button, Stack } from "@mui/material";
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Button, Grid, Stack, Typography } from "@mui/material";
 import { ethers } from "ethers";
-import { getProvider } from "../utils/Web3Util";
-import store from '../state';
-import Temp from "../contracts/Temp.json";
 import Image from 'mui-image';
-
-
-import DropZone from "../components/UploadZone";
-
-//import { api } from "../../services/api";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { TOKEN_LIST } from "../constants/newtoken";
+import Temp from "../contracts/Temp.json";
+import { getProvider, getAccount, TokenContract, MarketContract } from "../utils/Web3Util";
+import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
+import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { useNavigate } from "react-router-dom";
+import { getList } from '../api/tokenApi';
 
 const CreateNFT = () => {
+  const [image, setImage] = useState(TOKEN_LIST[Math.floor(Math.random() * 12)]);
+  const [mintLoading, setMintLoading] = useState(false);
+  const navigate = useNavigate();
 
-  //   const account = useSelector((state) => state.allNft.account);
-  //   const artTokenContract = useSelector(
-  //     (state) => state.allNft.artTokenContract
-  //   );
-
-  const [selectedFile, setSelectedFile] = useState();
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    price: "",
-  });
-
-  const contractProvider = ethers.providers.getDefaultProvider('ropsten');
-  const address = Temp.address;
-  const abi = Temp.abi;
-
-  const contract = new ethers.Contract(address, abi, contractProvider);
-
-
-  function handleInputChange(event: any) {
-    let { name, value } = event.target;
-    // if(name === 'image'){
-    //   value = event.target.files[0];
-    // }
-    setFormData({ ...formData, [name]: value });
+  const refreshClick = async () => {
+    const res = await getList({ pageIndex: 1 });
+    console.log(res);
+    //setImage(TOKEN_LIST[Math.floor(Math.random() * 12)]);
   }
 
-  async function getTest(event: any) {
-    console.log("0909087");
-
-    let temp = await contract.getTemp()
-    console.log(temp.toNumber());
-    console.log(contract.getTemp());
-
-    const estimatedGasLimit = await contract.estimateGas.setTemp(22222);
-    console.log(estimatedGasLimit.toNumber());
-  }
-
-  async function create(event: any) {
+  const mintClick = async () => {
     const provider = await getProvider();
-    let currentAccount = store.getState().state.account;
 
     const signer = provider.getSigner();
+    const contract = new ethers.Contract(TOKEN_ADDRESS, Token.abi, signer);
 
-    const contract1 = new ethers.Contract(address, abi, signer);
+    contract.safeMint(signer.getAddress(), image.url).then((resolve: any) => {
+      setMintLoading(true);
+    }).catch((err: any) => {
+      alert(err.reason.split(":")[1])
+    })
 
-    console.log(signer);
-
-    const estimatedGasLimit = await contract1.estimateGas.setTemp(22222);
-    console.log(estimatedGasLimit.toNumber());
-    //contract1.setTemp(1100);
-
-    // // Send 1 DAI to "ricmoo.firefly.eth"
-    // tx = daiWithSigner.transfer("ricmoo.firefly.eth", dai);
-
-    // provider.getBalance(currentAccount as string).then((result)=>{
-    //   console.log(ethers.utils.formatEther(result));
-    // })
-    // console.log(formData);
-    // event.preventDefault();
-    // const { title, description } = formData;
-
-    // console.log("title: " + title);
-
-    // const data = new FormData();
-    // data.append("name", title);
-    // data.append("description", description);
-
-    // if(selectedFile){
-    //   data.append('img', selectedFile);
-    //   console.log("slectedFile: ", selectedFile);
-    // }
-
-    // try {
-    //   const totalSupply = await artTokenContract.methods.totalSupply().call();
-    //   data.append("tokenId", Number(totalSupply) + 1);
-
-    //   const response = await api.post("/tokens", data, {
-    //     headers: {
-    //       "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
-    //     },
-    //   });
-    //   console.log(response);
-
-    //   mint(response.data.message);
-    // } catch (error) {
-    //   console.log(error);
-    //   // error.response.data
-    // }
-  }
-
-  async function mint(tokenMetadataURL: string) {
-    // try {
-    //   const receipt = await artTokenContract.methods
-    //     .mint(tokenMetadataURL)
-    //     .send({ from: account });
-    //   console.log(receipt);
-    //   console.log(receipt.events.Transfer.returnValues.tokenId);
-    //   // setItems(items => [...items, {
-    //   //   tokenId: receipt.events.Transfer.returnValues.tokenId,
-    //   //   creator: accounts[0],
-    //   //   owner: accounts[0],
-    //   //   uri: tokenMetadataURL,
-    //   //   isForSale: false,
-    //   //   saleId: null,
-    //   //   price: 0,
-    //   //   isSold: null
-    //   // }]);
-    //   history.push('/');
-    // } catch (error) {
-    //   console.error("Error, minting: ", error);
-    //   alert("Error while minting!");
-    // }
+    contract.on("Transfer", (from, to, tokenId, event) => {
+      console.log(event);
+      setMintLoading(false);
+      navigate("/nft/" + tokenId);
+    });
   }
 
   return (
@@ -147,20 +59,45 @@ const CreateNFT = () => {
 
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
         <Stack>
-          <Image src="https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f4.png" style={{ width: "50%", borderRadius: 10 }} />
+          <Image src={image.url} style={{ width: "50%", borderRadius: 10 }} />
 
           <br />
+
+          <Grid container>
+            <Grid item xs={3}>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="body1" color="text.secondary">
+                {image.desc}
+              </Typography>
+            </Grid>
+            <Grid item xs={3}>
+            </Grid>
+          </Grid>
+
           <br />
-          <Button variant="contained" color="primary" href="/create-nft"
-            disableElevation className="main-button">
-            Mint
-          </Button>
+          <Grid container>
+            <Grid item xs={3}>
+            </Grid>
+            <Grid item xs={3}>
+              <Button variant="contained" color="secondary" sx={{ borderRadius: 2, ml: '20px' }} style={{ width: 220, height: 40 }}
+                startIcon={<RefreshIcon />} onClick={refreshClick}>
+                Refresh
+              </Button>
+            </Grid>
+            <Grid item xs={3}>
+              <LoadingButton variant="contained" color="primary" sx={{ borderRadius: 2 }} style={{ width: 220, height: 40 }}
+                startIcon={<BuildIcon />} onClick={mintClick} loading={mintLoading} loadingPosition="start">
+                Mint
+              </LoadingButton>
+            </Grid>
+            <Grid item xs={3}>
+            </Grid>
+          </Grid>
 
           <br />
           <br />
         </Stack>
-
-
       </div>
     </div>
   );

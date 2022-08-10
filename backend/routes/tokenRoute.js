@@ -22,7 +22,7 @@ const TokenStatus = {
 }
 
 //向路由对象上挂载具体的路由
-router.get('/change', (req, res) => {
+router.post('/change', (req, res) => {
     if (!req.query.tokenId) {
         res.send("PARAM ERROR")
     }
@@ -86,7 +86,7 @@ router.get('/list', (req, res) => {
     if (!req.query.pageIndex) {
         res.send("PARAM ERROR")
     }
-
+ 
     mongo.queryAll(tokenAddress, req.query.pageIndex, 20).then(result => {
         res.json(result);
     })
