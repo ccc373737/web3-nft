@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 import store from '../state';
 import { setAccount } from "../state/action";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
-import Token from "../../contract/artifacts/contracts/Token.sol/Token.json";
-import Market from "../../contract/artifacts/contracts/Market.sol/Market.json";
+import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
+import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
 import { Contract } from "@ethersproject/contracts";
 
 

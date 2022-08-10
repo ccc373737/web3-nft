@@ -7,7 +7,7 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
 import NP from 'number-precision';
 import React, { useEffect, useState } from "react";
-import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
+import Market from "../../../../contract/artifacts/contracts/Market.sol/Market.json";
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import { EnDetailData, TokenStatus } from "../../pages/Item";

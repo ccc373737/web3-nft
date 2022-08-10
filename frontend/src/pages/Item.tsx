@@ -26,7 +26,6 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { ReactComponent as EthereumLogo } from "../assets/ethereum_logo.svg";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Auction from '../components/Auction';
-import AuctionDetail from "../components/AuctionDetail";
 import FixedDetail from "../components/FixedDetail";
 import DutchAuctionDetail from "../components/DutchAuctionDetail";
 import EnglishAuctionDetail from "../components/EnglishAuctionDetail";
@@ -34,8 +33,8 @@ import ExchangeAuctionDetail from "../components/ExchangeAuctionDetail";
 import History from "../components/History";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
-import Token from "../../contract/artifacts/contracts/Token.sol/Token.json";
-import Market from "../../contract/artifacts/contracts/Market.sol/Market.json";
+import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
+import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
 import Image from 'material-ui-image'
 
 export enum TokenStatus {
