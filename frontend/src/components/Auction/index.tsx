@@ -30,6 +30,7 @@ import { ethers } from "ethers";
 import Market from "../../../../contract/artifacts/contracts/Market.sol/Market.json";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {TokenStatus} from "../../pages/Item";
+import { change } from '../../api/tokenApi';
 
 const Auction = (
     { tokenId, isApproved, changeStatus }: 
@@ -59,6 +60,7 @@ const Auction = (
 
             contract.on("FixedStart", (nftAddr, seller, tokenId, price, endTime, event) => {
                 console.log(event);
+                change(tokenId.toNumber())
                 changeStatus(TokenStatus.FIXED_PRICE);
             });
 
@@ -74,6 +76,7 @@ const Auction = (
 
             contract.on("DutchAuctionStart", (nftAddr, seller, tokenId, price, floorPrice, endTime, event) => {
                 console.log(event);
+                change(tokenId.toNumber())
                 changeStatus(TokenStatus.DUCTCH_AUCTION);
             });
             
@@ -89,6 +92,7 @@ const Auction = (
 
             contract.on("EnglishAuctionStart", (nftAddr, seller, tokenId, reservePrice, minimumAddPrice, endTime, event) => {
                 console.log(event);
+                change(tokenId.toNumber())
                 changeStatus(TokenStatus.ENGLISH_AUCTION);
             });
 
@@ -102,6 +106,7 @@ const Auction = (
 
             contract.on("ExchangeAuctionStart", (nftAddr, seller, tokenId, event) => {
                 console.log(event);
+                change(tokenId.toNumber())
                 changeStatus(TokenStatus.EXCHANGE_AUCTION);
             });
         }

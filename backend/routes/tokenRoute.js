@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const ethers = require('ethers');
 const mongo = require('../mongo');
+const AsyncLock = require('async-lock');
 
 const contractProvider = ethers.providers.getDefaultProvider('ropsten');
+const lock = new AsyncLock();
 
 const Token = require('../../contract/artifacts/contracts/Token.sol/Token.json');
 const Market = require('../../contract/artifacts/contracts/Market.sol/Market.json');
@@ -23,12 +25,16 @@ const TokenStatus = {
 
 //向路由对象上挂载具体的路由
 router.post('/change', (req, res) => {
-    if (!req.query.tokenId) {
+    if (!req.body.tokenId) {
         res.send("PARAM ERROR")
     }
+  
+    console.log(req.body)
+    let tokenId = req.body.tokenId.toString();
 
-    const init = async () => {
-        let tokenId = req.query.tokenId;
+    const change = async() => { 
+        await tokenContract.ownerOf(tokenId);
+        console.log("I'm coming");
         let param = {
             updateDate: new Date().getTime()
         };
@@ -36,7 +42,7 @@ router.post('/change', (req, res) => {
         let status = await marketContract.getStatus(tokenAddress, tokenId);
         let old = await mongo.queryOne(tokenAddress, tokenId);
 
-        if (old && old.status == status) {//same status just return
+        if (old && old.status == status && old.status != TokenStatus.ENGLISH_AUCTION) {//same status just return
             return;
         }
 
@@ -77,9 +83,17 @@ router.post('/change', (req, res) => {
             param.status = TokenStatus.EXCHANGED;
         } 
 
+        console.log(param);
         mongo.insertOrUpdate(tokenAddress, tokenId, param);
     }
-    init();
+
+    if (!lock.isBusy(tokenId)) {
+        lock.acquire(tokenId, async() => {
+            await change();
+        });
+    } 
+   
+    res.send("ok")
 });
 
 router.get('/list', (req, res) => {

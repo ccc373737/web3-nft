@@ -13,7 +13,7 @@ import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useNavigate } from "react-router-dom";
-import { getList } from '../api/tokenApi';
+import { getList, change } from '../api/tokenApi';
 
 const CreateNFT = () => {
   const [image, setImage] = useState(TOKEN_LIST[Math.floor(Math.random() * 12)]);
@@ -23,7 +23,7 @@ const CreateNFT = () => {
   const refreshClick = async () => {
     const res = await getList({ pageIndex: 1 });
     console.log(res);
-    //setImage(TOKEN_LIST[Math.floor(Math.random() * 12)]);
+    setImage(TOKEN_LIST[Math.floor(Math.random() * 12)]);
   }
 
   const mintClick = async () => {
@@ -39,9 +39,9 @@ const CreateNFT = () => {
     })
 
     contract.on("Transfer", (from, to, tokenId, event) => {
-      console.log(event);
+      console.log(tokenId);
+      change(tokenId.toNumber())
       setMintLoading(false);
-      navigate("/nft/" + tokenId);
     });
   }
 

@@ -1,27 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
 import '../style/Global.css';
 import Card from "../components/Card";
-
-//import getWeb3 from "../../utils/getWeb3";
-//import { api } from "../../services/api";
-
-//import ArtMarketplace from "../../contracts/ArtMarketplace.json";
-//import ArtToken from "../../contracts/ArtToken.json";
-
-// import {
-//   setNft,
-//   setAccount,
-//   setTokenContract,
-//   setMarketContract,
-// } from "../../redux/actions/nftActions";
-// import Card from "../../components/Card";
-
-// import { useStyles } from "./styles.js";
-
 import veterans from "../assets/arts/Sparse-Ahmed-Mostafa-vetarans-2.jpg";
 import lionKing from "../assets/arts/suresh-pydikondala-lion.jpg";
 import dreaming from "../assets/arts/phuongvp-maybe-i-m-dreaming-by-pvpgk-deggyli.jpg";
@@ -31,135 +14,49 @@ import stones from "../assets/arts/rentao_-22-10-.jpg";
 import wale from "../assets/arts/luzhan-liu-1-1500.jpg";
 import comic from "../assets/arts/daniel-taylor-black-and-white-2019-2.jpg";
 import galerie from "../assets/galerie.svg";
+import { getList, change } from '../api/tokenApi';
+import {TokenStatus} from "../pages/Item";
 
+export interface TokenCard {
+  tokenId: string,
+  owner: string,
+  image: string,
+  status: number,
+  price: string,
+  endTime: string
+}
 
 export default function Home() {
-  //   const classes = useStyles();
-  //   const nft = useSelector((state) => state.allNft.nft);
-  //   const dispatch = useDispatch();
 
-  //   useEffect(() => {
-  //     let itemsList = [];
-  //     const init = async () => {
-  //       try {
-  //         const web3 = await getWeb3();
-  //         const accounts = await web3.eth.getAccounts();
+  const [loading, setLoad] = useState(false);
+  const [itemsList, setItemsList] = useState<TokenCard[]>();
 
-  //         if (typeof accounts === undefined) {
-  //           alert("Please login with Metamask!");
-  //           console.log("login to metamask");
-  //         }
+  useEffect(() => {
+    getList({ pageIndex: 1 }).then((result: any) => {
+      let list = [];
+      for (let token of result) {
+        let detail = {
+          tokenId: token.tokenId,
+          owner: token.owner,
+          image: token.url,
+          status: token.status,
+          price: token.price,
+          endTime: token.endTime
+        }
 
-  //         const networkId = await web3.eth.net.getId();
-  //         try {
-  //           const artTokenContract = new web3.eth.Contract(
-  //             ArtToken.abi,
-  //             ArtToken.networks[networkId].address
-  //           );
-  //           // console.log("Contract: ", artTokenContract);
-  //           const marketplaceContract = new web3.eth.Contract(
-  //             ArtMarketplace.abi,
-  //             ArtMarketplace.networks[networkId].address
-  //           );
-  //           const totalSupply = await artTokenContract.methods
-  //             .totalSupply()
-  //             .call();
-  //           const totalItemsForSale = await marketplaceContract.methods
-  //             .totalItemsForSale()
-  //             .call();
+        switch (token.status) {
+          case TokenStatus.FIXED_PRICE: 
+            detail.price = token.fixedPrice;
+            break;
+        }
 
-  //           for (var tokenId = 1; tokenId <= totalSupply; tokenId++) {
-  //             let item = await artTokenContract.methods.Items(tokenId).call();
-  //             let owner = await artTokenContract.methods.ownerOf(tokenId).call();
+        list.push(detail);
+      }
 
-  //             const response = await api
-  //               .get(`/tokens/${tokenId}`)
-  //               .catch((err) => {
-  //                 console.log("Err: ", err);
-  //               });
-  //             console.log("response: ", response);
-
-  //             itemsList.push({
-  //               name: response.data.name,
-  //               description: response.data.description,
-  //               image: response.data.image,
-  //               tokenId: item.id,
-  //               creator: item.creator,
-  //               owner: owner,
-  //               uri: item.uri,
-  //               isForSale: false,
-  //               saleId: null,
-  //               price: 0,
-  //               isSold: null,
-  //             });
-  //           }
-  //           if (totalItemsForSale > 0) {
-  //             for (var saleId = 0; saleId < totalItemsForSale; saleId++) {
-  //               let item = await marketplaceContract.methods
-  //                 .itemsForSale(saleId)
-  //                 .call();
-  //               let active = await marketplaceContract.methods
-  //                 .activeItems(item.tokenId)
-  //                 .call();
-
-  //               let itemListIndex = itemsList.findIndex(
-  //                 (i) => i.tokenId === item.tokenId
-  //               );
-
-  //               itemsList[itemListIndex] = {
-  //                 ...itemsList[itemListIndex],
-  //                 isForSale: active,
-  //                 saleId: item.id,
-  //                 price: item.price,
-  //                 isSold: item.isSold,
-  //               };
-  //             }
-  //           }
-
-  //           dispatch(setAccount(accounts[0]));
-  //           dispatch(setTokenContract(artTokenContract));
-  //           dispatch(setMarketContract(marketplaceContract));
-  //           dispatch(setNft(itemsList));
-  //         } catch (error) {
-  //           console.error("Error", error);
-  //           alert(
-  //             "Contracts not deployed to the current network " +
-  //               networkId.toString()
-  //           );
-  //         }
-  //       } catch (error) {
-  //         alert(
-  //           `Failed to load web3, accounts, or contract. Check console for details.` +
-  //             error
-  //         );
-  //         console.error(error);
-  //       }
-  //     };
-  //     init();
-  //   }, [dispatch]);
-
-  //   console.log("Nft :", nft);
-
-  //   const nftItem = useSelector((state) => state.allNft.nft);
-  let itemsList = [];
-
-  for (let i = 0; i < 5; i++) {
-    itemsList.push({
-      tokenId: "12123",
-      name: "ccc",
-      image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/hor-banner.png",
-      price: 20,
-      owner: "mycccc",
-      isForSale: false,
-
-      description: "sada",
-      creator: "cccsa",
-      uri: "sdsad",
-      saleId: null,
-      isSold: null,
-    });
-  }
-
+      setItemsList(list);
+      setLoad(true)
+    })
+  }, []);
 
   return (
     <div>
@@ -230,8 +127,9 @@ export default function Home() {
           justifyContent="left"
           alignItems="center"
           spacing={2}
+          sx={{ display: (loading ? "true" : "none") }}
         >
-          {itemsList.map((nft) => (
+          {itemsList && itemsList.map((nft) => (
             <Grid item key={nft.tokenId}>
               <Card {...nft} />
             </Grid>

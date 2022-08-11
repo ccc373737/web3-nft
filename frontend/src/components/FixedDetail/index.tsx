@@ -1,16 +1,17 @@
 import SellIcon from '@mui/icons-material/Sell';
+import LoadingButton from "@mui/lab/LoadingButton";
 import { Grid, Stack, Typography } from '@mui/material';
-import Button from "@mui/material/Button";
 import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
-import React, {  Fragment, useState, useEffect } from "react";
+import React, { useState } from "react";
 import Market from "../../../../contract/artifacts/contracts/Market.sol/Market.json";
+import { change } from '../../api/tokenApi';
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import { FixedDetailData, TokenStatus } from "../../pages/Item";
 import { getProvider } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
-import LoadingButton from "@mui/lab/LoadingButton";
+
 
 const FixedDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
@@ -33,6 +34,7 @@ const FixedDetail = (
 
         contract.on("FixedRevoke", (nftAddr, seller, tokenId, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -43,8 +45,8 @@ const FixedDetail = (
 
         const signer = provider.getSigner();
         const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
-        
-        contract.fixedPurchase(TOKEN_ADDRESS, tokenId, { value:  ethers.utils.parseEther(detail.price) }).then((resolve: any) => {
+
+        contract.fixedPurchase(TOKEN_ADDRESS, tokenId, { value: ethers.utils.parseEther(detail.price) }).then((resolve: any) => {
             setLoad(true)
         }).catch((err: any) => {
             console.log(err)
@@ -53,6 +55,7 @@ const FixedDetail = (
 
         contract.on("FixedPurchase", (nftAddr, buyer, tokenId, price, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -62,7 +65,7 @@ const FixedDetail = (
             <Grid container spacing={2} sx={{
                 '& > :not(style)': { m: 1, width: '25ch' },
             }}>
-                <React.Fragment> 
+                <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'flex-start', display: 'flex' }}>
                         <Stack>
                             <Typography variant="subtitle1" noWrap>
@@ -107,12 +110,9 @@ const FixedDetail = (
                                 </LoadingButton>
                             </Grid>))
                     }
-
                 </React.Fragment>
             </Grid>
-
         </React.Fragment>
-
     );
 };
 

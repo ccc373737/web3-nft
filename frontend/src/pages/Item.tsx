@@ -35,7 +35,8 @@ import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
 import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
 import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
-import Image from 'material-ui-image'
+import Image from 'material-ui-image';
+import { getList, change } from '../api/tokenApi';
 
 export enum TokenStatus {
   NORMAL,
@@ -96,13 +97,14 @@ const Item = () => {
     isLoad: false,
     isOwner: false,
     isApproved: false,
-    sellText: '',
-    //image: "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg",
+    sellText: ''
   });
 
   useEffect(() => {
     const init = async () => {
       console.log("init111111")
+      change(tokenId);
+      
       let status = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
       let owner = tokenData.owner
       let sellText = '';

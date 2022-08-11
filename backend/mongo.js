@@ -12,10 +12,11 @@ exports.insertOrUpdate = async function insertOrUpdate(tokenAddress, tokenId, pa
 
         const query = { tokenId: tokenId, tokenAddress: tokenAddress };
         const one = await coll.findOne(query);
+        console.log(one)
         if (one == null) {
             coll.insertOne(param);
         } else if (one.status != param.status) {
-            coll.updateOne(query, param);
+            coll.updateOne(query, { $set:param });
         }
     } catch (error) {
         console.error(error)

@@ -10,16 +10,26 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import CardContent from "@mui/material/CardContent";
 import CardActionArea from "@mui/material/CardActionArea";
+import {TokenStatus} from "../../pages/Item";
 
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 
 const Card = ({ 
-    tokenId, name, image, price, owner, isForSale 
+  tokenId,
+  owner,
+  image, 
+  status,
+  price,
+  endTime
 } : {
-    tokenId:string, name:string, image:string, price:number, owner:string, isForSale:boolean
+  tokenId: string,
+  owner: string,
+  image: string, 
+  status: number,
+  price: string,
+  endTime: string
 }) => {
-  console.log("image: ", image);
-
+  console.log()
   return (
     <Link to={`/nft/${tokenId}`} style={{ textDecoration: 'none' }}>
       <MuiCard style={{width: "20rem",
@@ -31,19 +41,19 @@ const Card = ({
         <CardActionArea>
           <CardMedia
             component="img"
-            alt={name}
+            alt={tokenId}
             height="240"
             image={image}
-            title="{name}"
+            title={tokenId}
           />
 
           <CardContent>
             <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
               <Typography variant={"h5"} gutterBottom>
-                {name}
+                #{tokenId}
               </Typography>
               
-              <Chip size="small" disabled={true} label="Selling"
+              <Chip size="small" disabled={true} label={TokenStatus[status]}
                 style={{fontSize: "0.9rem",
                 height: "1.4rem",
                 marginLeft: "auto",
@@ -62,7 +72,7 @@ const Card = ({
                     viewBox="0 0 400 426.6"
                     titleAccess="ETH"
                 />
-              {/* <span>{Web3.utils.fromWei(String(price), "ether")}.120000</span> */}
+              <span>{price}</span>
             </Typography>
 
             <Divider light />
@@ -72,7 +82,8 @@ const Card = ({
               align={"center"}
               style={{paddingTop: "0.1rem"}}
             >
-              {owner.slice(0, 7)}...{owner.slice(-4)}
+              {owner}
+              end in {endTime}
             </Typography>
           </CardContent>
         </CardActionArea>
