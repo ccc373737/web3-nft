@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import Grid from "@mui/material/Grid";
+import { Button, Grid, Stack } from '@mui/material';
 import Typography from "@mui/material/Typography";
-import Button from '@mui/material/Button';
-import '../style/Global.css';
-import Card from "../components/Card";
-import veterans from "../assets/arts/Sparse-Ahmed-Mostafa-vetarans-2.jpg";
-import lionKing from "../assets/arts/suresh-pydikondala-lion.jpg";
-import dreaming from "../assets/arts/phuongvp-maybe-i-m-dreaming-by-pvpgk-deggyli.jpg";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getList, getMylist } from '../api/tokenApi';
 import modeling3d from "../assets/arts/alan-linssen-alanlinssen-kitbashkitrender2.jpg";
 import woman from "../assets/arts/ashline-sketch-brushes-3-2.jpg";
-import stones from "../assets/arts/rentao_-22-10-.jpg";
-import wale from "../assets/arts/luzhan-liu-1-1500.jpg";
 import comic from "../assets/arts/daniel-taylor-black-and-white-2019-2.jpg";
+import wale from "../assets/arts/luzhan-liu-1-1500.jpg";
+import dreaming from "../assets/arts/phuongvp-maybe-i-m-dreaming-by-pvpgk-deggyli.jpg";
+import stones from "../assets/arts/rentao_-22-10-.jpg";
+import veterans from "../assets/arts/Sparse-Ahmed-Mostafa-vetarans-2.jpg";
+import lionKing from "../assets/arts/suresh-pydikondala-lion.jpg";
 import galerie from "../assets/galerie.svg";
-import { getList, change } from '../api/tokenApi';
-import {TokenStatus} from "../pages/Item";
+import Card from "../components/Card";
+import { TokenStatus } from "../pages/Item";
+import '../style/Global.css';
+import { getProvider, getAccount, TokenContract, MarketContract } from "../utils/Web3Util";
+
 
 export interface TokenCard {
   tokenId: string,
@@ -27,12 +28,15 @@ export interface TokenCard {
 }
 
 export default function Home() {
-
+  const { address } = useParams();
   const [loading, setLoad] = useState(false);
   const [itemsList, setItemsList] = useState<TokenCard[]>();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getList({ pageIndex: 1 }).then((result: any) => {
+    const init = address == null ? getList({ pageIndex: 1 }): getMylist({ owner: address })
+    
+    init.then((result: any) => {
       let list = [];
       for (let token of result) {
         let detail = {
@@ -40,15 +44,38 @@ export default function Home() {
           owner: token.owner,
           image: token.url,
           status: token.status,
-          price: token.price,
-          endTime: token.endTime
+          price: '',
+          endTime: ''
         }
 
-        switch (token.status) {
-          case TokenStatus.FIXED_PRICE: 
-            detail.price = token.fixedPrice;
-            break;
+        if (token.endTime && new Date().getTime() < token.endTime) {
+          switch (token.status) {
+            case TokenStatus.FIXED_PRICE: 
+              detail.price = (token.fixedPrice + "0000").slice(0, 4);
+              detail.endTime = new Date(token.endTime).toLocaleString();
+              break;
+            case TokenStatus.DUCTCH_AUCTION:
+              let start = token.startPrice;
+              let end = token.floorPrice;
+              let interval = 10 * 60 * 1000;
+  
+              let rate = (start - end) / (token.endTime - token.startTime) * interval;
+              let step = Math.floor((new Date().getTime() - token.startTime) / interval);
+              let nowPrice = start - (step * rate);
+  
+              detail.price = nowPrice.toString().slice(0, 4);
+              detail.endTime = new Date(token.endTime).toLocaleString();
+              break;
+            case TokenStatus.ENGLISH_AUCTION:
+              detail.price = (token.nowPirce + "0000").slice(0, 4);
+              detail.endTime = new Date(token.endTime).toLocaleString();
+              break;
+            case TokenStatus.EXCHANGE_AUCTION:
+              detail.endTime = new Date(token.endTime).toLocaleString();
+              break;
+          }
         }
+        
 
         list.push(detail);
       }
@@ -56,7 +83,16 @@ export default function Home() {
       setItemsList(list);
       setLoad(true)
     })
-  }, []);
+  }, [address]);
+
+  const myntfPage = async () => {
+    const provider = await getProvider();
+    const acc = await getAccount();
+
+    if (acc != null) {
+      navigate('/mynft/' + acc);
+    }
+  }
 
   return (
     <div>
@@ -88,10 +124,18 @@ export default function Home() {
 
             <Typography style={{ fontSize: "1.2rem", textAlign: "center" }}>A decentralized NFT marketplace where you can expose your art.</Typography>
 
-            <Button variant="contained" color="primary" href="/create-nft"
-              disableElevation className="main-button">
-              Mint your art
-            </Button>
+            <Stack spacing={2} direction="row">
+              <Button variant="contained" color="primary" onClick={myntfPage}
+                disableElevation className="main-button">
+                My NFT
+              </Button>
+
+              <Button variant="contained" color="primary" href="/create-nft"
+                disableElevation className="main-button">
+                Mint your art
+              </Button>
+            </Stack>
+
 
           </Grid>
 

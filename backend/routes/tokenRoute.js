@@ -72,6 +72,7 @@ router.post('/change', (req, res) => {
             let detail  = await marketContract.getEnAuction(tokenAddress, tokenId);
             param.reservePrice = ethers.utils.formatEther(detail.reservePrice);
             param.minimumAddPrice = ethers.utils.formatEther(detail.minimumAddPrice);
+            param.nowPirce = ethers.utils.formatEther(detail.nowPirce);
             param.endTime = detail.endTime.toNumber() * 1000;
 
         } else if (status == TokenStatus.EXCHANGE_AUCTION) {
@@ -80,7 +81,7 @@ router.post('/change', (req, res) => {
             param.endTime = detail.endTime.toNumber() * 1000;
 
         } else if (status == TokenStatus.EXCHANGED) {
-            param.status = TokenStatus.EXCHANGED;
+            param.status = TokenStatus.EXCHANGED; 
         } 
 
         console.log(param);

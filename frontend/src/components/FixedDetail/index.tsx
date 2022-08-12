@@ -67,7 +67,7 @@ const FixedDetail = (
             }}>
                 <React.Fragment>
                     <Grid item lg={5} md={6} sx={{ alignItems: 'flex-start', display: 'flex' }}>
-                        <Stack>
+                        <Stack sx={{ ml: '10px' }}>
                             <Typography variant="subtitle1" noWrap>
                                 CURRENT PRICE
                             </Typography>

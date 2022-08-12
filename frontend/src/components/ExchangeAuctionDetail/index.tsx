@@ -18,36 +18,38 @@ import { getProvider, TokenContract, getAccount, ZERO_ADDRESS } from "../../util
 import CountdownTimer from '../CountTimer';
 import LoadingButton from "@mui/lab/LoadingButton";
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
+import { change, getMylist } from '../../api/tokenApi';
+
 
 
 
 interface BidToken {
     tokenId: string,
-    tokenIdLink: string,
+    tokenIdLink?: string,
     image: string,
-    action: string
+    action?: string
 }
 
 const ExchangeAuctionDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
-        { tokenId: string, detail: ExDetailData, isOwner: boolean, setLogin: () => void, changeStatus: (status: TokenStatus) => void }) => {
+    { tokenId: string, detail: ExDetailData, isOwner: boolean, setLogin: () => void, changeStatus: (status: TokenStatus) => void }) => {
 
     const [approveLoading, setApproveLoading] = useState(false);
     const [exchangeLoading, setExchangeLoading] = useState(false);
     const [cancelLoading, setCancelLoading] = useState(false);
-    const [withdrawLoading, setWithdrawLoading] = useState(false);
     const [chooseLoading, setChooseLoading] = useState(false);
     const [bidTokenList, setBidTokenList] = useState<BidToken[]>([]);
+    const [myTokenList, setMyTokenList] = useState<BidToken[]>([]);
 
     const [myTokenApproved, setMyTokenApproved] = useState(false);
     const [myTokenChoose, setMyTokenChoose] = useState(undefined);
+    const [myTokenChooseImg, setMyTokenChooseImg] = useState('');
 
     useEffect(() => {
         const init = async () => {
             let set = new Set();
             let list: any[] = [];
             let acc = await getAccount();
-            console.log(isOwner)
 
             for (let i = 0; i < detail.bidTokenList.length; i++) {
                 let id = detail.bidTokenList[i].toString();
@@ -102,6 +104,10 @@ const ExchangeAuctionDetail = (
 
         contract.on("ExchangeAuctionRevoke", (nftAddr, seller, tokenId, event) => {
             console.log(event);
+            change(tokenId.toNumber());
+            for (let temp of bidTokenList) {
+                change(temp.tokenId);
+            }
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -122,6 +128,10 @@ const ExchangeAuctionDetail = (
 
         contract.on("ExchangeAuctionEnd", (nftAddr, tokenId, exchangeTokenId, event) => {
             console.log(event);
+            change(tokenId.toNumber());
+            for (let temp of bidTokenList) {
+                change(temp.tokenId);
+            }
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -140,14 +150,51 @@ const ExchangeAuctionDetail = (
             alert(err.reason.split(":")[1])
         })
 
-        contract.on("ExchangeAuctionWithdraw", (nftAddr, buyer, tokenId, exchangeId, event) => {
+        contract.on("ExchangeAuctionWithdraw", (nftAddr, buyer, tokenId, exchangeTokenId, event) => {
             console.log(event);
+            change(exchangeTokenId.toNumber());
             changeStatus(TokenStatus.TRANSITION);
         });
     }
 
-    const myListOpen = () => {
-        console.log(1111)
+    const exchangeClick = async () => {
+        const provider = await getProvider();
+        await setLogin();
+
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
+
+        contract.exchangeBid(TOKEN_ADDRESS, tokenId, myTokenChoose).then((resolve: any) => {
+            setExchangeLoading(true)
+        }).catch((err: any) => {
+            alert(err.reason.split(":")[1])
+        })
+
+        contract.on("ExchangeAuctionBid", (nftAddr, bider, tokenId, exchangeTokenId, event) => {
+            console.log(event);
+            change(exchangeTokenId.toNumber());
+            changeStatus(TokenStatus.TRANSITION);
+        });
+    }
+
+    const myListOpen = async () => {
+        const provider = await getProvider();
+        await setLogin();
+        let acc = await getAccount()
+
+        if (myTokenList.length == 0) {
+            getMylist({ owner: acc, status: TokenStatus.NORMAL }).then((result: any) => {
+                let list = [];
+                for (let token of result) {
+                    list.push({
+                        tokenId: token.tokenId,
+                        image: token.url,
+                    })
+                }
+
+                setMyTokenList(list)
+            });
+        }
     }
 
     const myListChange = async (event: any) => {
@@ -155,6 +202,13 @@ const ExchangeAuctionDetail = (
         await setLogin();
 
         let token = event.target.value;
+        for (let temp of myTokenList) {
+            if (temp.tokenId == token) {
+                setMyTokenChooseImg(temp.image);
+                break
+            }
+        }
+        
         let app = await TokenContract().getApproved(token) == MARKET_ADDRESS;
 
         setMyTokenChoose(token);
@@ -189,25 +243,6 @@ const ExchangeAuctionDetail = (
             console.log(event);
             setApproveLoading(false);
             setMyTokenApproved(true);
-        });
-    }
-
-    const exchangeClick = async () => {
-        const provider = await getProvider();
-        await setLogin();
-
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
-
-        contract.exchangeBid(TOKEN_ADDRESS, tokenId, myTokenChoose).then((resolve: any) => {
-            setExchangeLoading(true)
-        }).catch((err: any) => {
-            alert(err.reason.split(":")[1])
-        })
-
-        contract.on("ExchangeAuctionBid", (nftAddr, bider, tokenId, exchangeTokenId, event) => {
-            console.log(event);
-            changeStatus(TokenStatus.TRANSITION);
         });
     }
 
@@ -268,15 +303,15 @@ const ExchangeAuctionDetail = (
                         <Grid item lg={6} md={6}>
                             <FormControl sx={{ width: '80%' }}>
                                 <InputLabel id="demo-simple-select-autowidth-label">TokenId</InputLabel>
-                                <Select label="TokenId" labelId="demo-simple-select-autowidth-label" onOpen={myListOpen} onChange={myListChange}>
-                                    <MenuItem value={2}>2</MenuItem>
-                                    <MenuItem value={3}>3</MenuItem>
-                                    <MenuItem value={4}>4</MenuItem>
+                                <Select label="TokenId" id="demo-customized-select" labelId="demo-simple-select-autowidth-label" onOpen={myListOpen} onChange={myListChange}>
+                                    {myTokenList.map((row) => (
+                                        <MenuItem value={row.tokenId}>{row.tokenId}</MenuItem>
+                                    ))}                   
                                 </Select>
                             </FormControl>
 
                             <Link target="_blank" to={`/nft/${112}`}>
-                                <img style={{ width: '17%', marginLeft: '2%' }} src={"https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg"} />
+                                <img style={{ width: '17%', marginLeft: '2%' }} src={myTokenChooseImg} />
                             </Link>
                         </Grid>
 

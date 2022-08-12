@@ -29,15 +29,16 @@ exports.queryMyTokens = async function queryMyTokens(tokenAddress, owner, status
 
         const query = { tokenAddress: tokenAddress, owner: owner };
         if (status != null) {
-            query.status = status;
+            query.status = Number(status);
         }
 
         const options = {
             sort: { updateDate: -1 }
         };
 
-        const list = await coll.find(query, options);
-
+        console.log(query)
+        const list = await coll.find(query, options).toArray();
+        console.log(list)
         return list;
     } catch (error) {
         console.error(error)

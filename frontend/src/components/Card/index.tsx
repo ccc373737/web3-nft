@@ -10,21 +10,21 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import CardContent from "@mui/material/CardContent";
 import CardActionArea from "@mui/material/CardActionArea";
-import {TokenStatus} from "../../pages/Item";
+import { TokenStatus } from "../../pages/Item";
 
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 
-const Card = ({ 
+const Card = ({
   tokenId,
   owner,
-  image, 
+  image,
   status,
   price,
   endTime
-} : {
+}: {
   tokenId: string,
   owner: string,
-  image: string, 
+  image: string,
   status: number,
   price: string,
   endTime: string
@@ -32,12 +32,14 @@ const Card = ({
   console.log()
   return (
     <Link to={`/nft/${tokenId}`} style={{ textDecoration: 'none' }}>
-      <MuiCard style={{width: "20rem",
-    borderRadius: "0.6rem",
-    margin: "auto",
-    transition: "0.3s",
-    boxShadow: "0 8px 40px -12px rgba(0,0,0,0.3)"}}>
-        
+      <MuiCard style={{
+        width: "20rem",
+        borderRadius: "0.6rem",
+        margin: "auto",
+        transition: "0.3s",
+        boxShadow: "0 8px 40px -12px rgba(0,0,0,0.3)"
+      }}>
+
         <CardActionArea>
           <CardMedia
             component="img"
@@ -48,31 +50,35 @@ const Card = ({
           />
 
           <CardContent>
-            <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
               <Typography variant={"h5"} gutterBottom>
                 #{tokenId}
               </Typography>
-              
+
               <Chip size="small" disabled={true} label={TokenStatus[status]}
-                style={{fontSize: "0.9rem",
-                height: "1.4rem",
-                marginLeft: "auto",
-                color: "white",
-                backgroundColor: "green"}}
+                style={{
+                  fontSize: "0.9rem",
+                  height: "1.4rem",
+                  marginLeft: "auto",
+                  color: "white",
+                  backgroundColor: "green"
+                }}
               />
             </div>
 
-            <Typography variant="h6" style={{display: 'flex',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                padding:" 0.8rem 0 0.4rem"}}>
-              
-                <SvgIcon
-                    component={EthereumLogo}
-                    viewBox="0 0 400 426.6"
-                    titleAccess="ETH"
-                />
+            <Typography variant="h6" style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              padding: " 0.8rem 0 0.4rem"
+            }}>
+
+              <SvgIcon component={EthereumLogo}
+                viewBox="0 0 400 426.6"
+                titleAccess="ETH"
+              />
               <span>{price}</span>
+              <span style={{ fontSize: "0.75rem", marginLeft: "45px" }}>{endTime ? "end on " + endTime : ""}</span>
             </Typography>
 
             <Divider light />
@@ -80,10 +86,12 @@ const Card = ({
             <Typography
               variant={"body1"}
               align={"center"}
-              style={{paddingTop: "0.1rem"}}
+              style={{ paddingTop: "0.1rem" }}
             >
-              {owner}
-              end in {endTime}
+              onwer by &nbsp;
+              <Link to={`/mynft/${owner}`} style={{ textDecoration: 'none' }}>
+                {owner.slice(2, 8)}
+              </Link>
             </Typography>
           </CardContent>
         </CardActionArea>

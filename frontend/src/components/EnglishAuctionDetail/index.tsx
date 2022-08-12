@@ -13,6 +13,8 @@ import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import { EnDetailData, TokenStatus } from "../../pages/Item";
 import { getAccount, getProvider } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
+import { change } from '../../api/tokenApi';
+
 
 const EnglishAuctionDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
@@ -74,6 +76,7 @@ const EnglishAuctionDetail = (
 
         contract.on("EnglishAuctionRevoke", (nftAddr, seller, tokenId, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -103,6 +106,7 @@ const EnglishAuctionDetail = (
 
         contract.on("EnglishAuctionBid", (nftAddr, bider, tokenId, nowPrice, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.TRANSITION);
         });
     }
@@ -123,6 +127,7 @@ const EnglishAuctionDetail = (
 
         contract.on("EnglishAuctionWithdraw", (nftAddr, bider, tokenId, balance, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -143,6 +148,7 @@ const EnglishAuctionDetail = (
 
         contract.on("EnglishAuctionEnd", (nftAddr, buyer, tokenId, price, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.TRANSITION);
         });
     }

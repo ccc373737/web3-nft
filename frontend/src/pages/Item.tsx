@@ -30,7 +30,6 @@ import FixedDetail from "../components/FixedDetail";
 import DutchAuctionDetail from "../components/DutchAuctionDetail";
 import EnglishAuctionDetail from "../components/EnglishAuctionDetail";
 import ExchangeAuctionDetail from "../components/ExchangeAuctionDetail";
-import History from "../components/History";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
 import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
@@ -119,6 +118,7 @@ const Item = () => {
       } else if (status == TokenStatus.DUCTCH_AUCTION) {
         let detail  = await MarketContract().getDuAuction(TOKEN_ADDRESS, tokenId);
         owner = detail.owner;
+        console.log(ethers.utils.formatEther(detail.nowPrice))
         setDuDetailData({owner: owner, price: ethers.utils.formatEther(detail.nowPrice), floorPrice: ethers.utils.formatEther(detail.floorPrice), endTime: detail.endTime.toNumber() * 1000});
         sellText = "Dutch Auction... Droped every ten minutes"
 

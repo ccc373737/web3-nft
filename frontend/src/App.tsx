@@ -12,6 +12,7 @@ function App() {
         <Header />
         <Routes>
           <Route path="/"  element={<Home/>} />
+          <Route path="/mynft/:address"  element={<Home/>} />
           <Route path="/create-nft" element={<Create/>} />
           <Route path="/nft/:tokenId" element={<Item/>} />
           <Route path="/*">404 Not Found!</Route>

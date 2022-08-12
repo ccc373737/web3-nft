@@ -11,6 +11,8 @@ import { DuDetailData, TokenStatus } from "../../pages/Item";
 import { getProvider } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
 import LoadingButton from "@mui/lab/LoadingButton";
+import { change } from '../../api/tokenApi';
+
 
 const DutchAuctionDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
@@ -33,6 +35,7 @@ const DutchAuctionDetail = (
 
         contract.on("DutchAuctionRevoke", (nftAddr, seller, tokenId, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -53,6 +56,7 @@ const DutchAuctionDetail = (
 
         contract.on("DutchAuctionBid", (nftAddr, buyer, tokenId, price, event) => {
             console.log(event);
+            change(tokenId.toNumber());
             changeStatus(TokenStatus.NORMAL);
         });
     }
@@ -64,7 +68,7 @@ const DutchAuctionDetail = (
             }}>
                 <React.Fragment> 
                     <Grid item lg={5} md={6} sx={{ alignItems: 'flex-start', display: 'flex' }}>
-                        <Stack>
+                        <Stack sx={{ ml: '10px' }}>
                             <Typography variant="subtitle1" noWrap>
                                 CURRENT PRICE
                             </Typography>
@@ -90,7 +94,7 @@ const DutchAuctionDetail = (
                     </Grid>
 
                     <Grid item lg={5} md={6} sx={{ alignItems: 'flex-start', display: 'flex' }}>
-                        <Stack>
+                        <Stack sx={{ ml: '10px' }}>
                             <Typography variant="subtitle1" noWrap>
                                 FLOOR PRICE
                             </Typography>
