@@ -32,8 +32,7 @@ import EnglishAuctionDetail from "../components/EnglishAuctionDetail";
 import ExchangeAuctionDetail from "../components/ExchangeAuctionDetail";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
 import { ethers } from "ethers";
-import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
-import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
+import Token from "../contracts/Token.sol/Token.json";
 import Image from 'material-ui-image';
 import { getList, change } from '../api/tokenApi';
 

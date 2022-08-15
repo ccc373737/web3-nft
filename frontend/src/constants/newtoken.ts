@@ -1,4 +1,4 @@
-export const TOKEN_LIST = [
+export const TOKEN_LIST =[
     {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f10.png", desc: "Eat Sr Banano et impera. Product of the mutation of a God Hates NFTs."},
     {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f11.png", desc: "When a new medium comes into existence, the capabilities of both the artist and viewer increase in number. The potential subjects within said medium can grow in complexity as well, some fully dependent on the medium that holds them."},
     {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f12.png", desc: "Sudfah (Arabic for happy accident is a generative collection celebrating the beauty that can emerge from chaos, mistakes, and accidents."},
@@ -10,5 +10,15 @@ export const TOKEN_LIST = [
     {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f18.png", desc: "Journals are great for writing down ideas, taking notes, writing about travels and adventures, describing good and bad times. Writing down your thoughts and ideas is a great way to relieve stress."},
     {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f19.png", desc: "BAYC is a collection of 10,000 Bored Ape NFTs. Owning a Bored Ape doubles as your membership to the Club."},
     {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f20.png", desc: "Bored Ape Yacht Club, or often colloquially called Bored Apes or Bored Ape, is an non-fungible token collection built on the Ethereum blockchain."},
-    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f21.png", desc: "Eat Sr Banano et impera. Product of the mutation of a God Hates NFTs."}
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f21.png", desc: "Eat Sr Banano et impera. Product of the mutation of a God Hates NFTs."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f22.png", desc: "Otherdeed is the key to claiming land in Otherside. Each have a unique blend of environment and sediment — some with resources, some home to powerful artifacts. And on a very few, a Koda roams."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f23.png", desc: "A community-driven collectibles project featuring art by Burnt Toast."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f24.png", desc: "Rugged revenants are NFTs that holders will use as playable characters within the game. They provide in-game benefits like flight and extra lives based on their attributes."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f25.png", desc: "Rugged revenants are NFTs that holders will use as playable characters within the game. They provide in-game benefits like flight and extra lives based on their attributes."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f26.png", desc: "AAAAAAAUUUUUGGGHHHHH gobblins goblinns GOBLINNNNNNNNns wekm ta goblintown yoo sniksnakr DEJEN."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f27.png", desc: "This token is verifiable for admission to VeeCon 2023, 2024 This token is a collectible that lives on the Ethereum blockchain."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f28.png", desc: "A private group of 1000 dedicated NFT collectors and artists. Membership to the collective and all of the benefits come from holding the PROOF Collective NFT."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f29.png", desc: "Cool Cats is a collection of 9,999 randomly generated and stylistically curated NFTs that exist on the Ethereum Blockchain."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f30.png", desc: "Moon Owls is artistic pieces that expresses an idea, an emotion or, more generally, a world view."},
+    {"url": "https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f31.png", desc: "Spell Casters have magically appeared in the metaverse, do you dare to join?"}
 ]

@@ -4,13 +4,13 @@ const ethers = require('ethers');
 const mongo = require('../mongo');
 const AsyncLock = require('async-lock');
 
-const contractProvider = ethers.providers.getDefaultProvider('ropsten');
+const contractProvider = ethers.providers.getDefaultProvider('goerli');
 const lock = new AsyncLock();
 
 const Token = require('../../contract/artifacts/contracts/Token.sol/Token.json');
 const Market = require('../../contract/artifacts/contracts/Market.sol/Market.json');
-const tokenAddress = "0xC2f2C1D03392e0868cbD9bd4F8922f091dB5673F";
-const marketAddress = "0x13C724d6Fa481286d76d86ad4412d403DD6a2B0C";
+const tokenAddress = "0xC3593B70380aF1a8166342851832f3561d012A00";
+const marketAddress = "0xA56a24d7707232F39339192feE1f047a0718a567";
 const tokenContract = new ethers.Contract(tokenAddress, Token.abi, contractProvider);
 const marketContract = new ethers.Contract(marketAddress, Market.abi, contractProvider);
 

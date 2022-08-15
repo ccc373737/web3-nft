@@ -27,7 +27,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import SellIcon from '@mui/icons-material/Sell';
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../../constants/addressed";
 import { ethers } from "ethers";
-import Market from "../../../../contract/artifacts/contracts/Market.sol/Market.json";
+import Market from "../../contracts/Market.sol/Market.json";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {TokenStatus} from "../../pages/Item";
 import { change } from '../../api/tokenApi';

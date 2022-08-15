@@ -4,7 +4,7 @@ import { Grid, Stack, Typography } from '@mui/material';
 import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
 import React, { useState } from "react";
-import Market from "../../../../contract/artifacts/contracts/Market.sol/Market.json";
+import Market from "../../contracts/Market.sol/Market.json";
 import { change } from '../../api/tokenApi';
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";

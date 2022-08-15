@@ -1,4 +1,4 @@
-import { Button, Grid, Stack } from '@mui/material';
+import { Button, Grid, Stack, Pagination, Divider } from '@mui/material';
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -30,11 +30,13 @@ export interface TokenCard {
 export default function Home() {
   const { address } = useParams();
   const [loading, setLoad] = useState(false);
+  const [totalPage, setTotalPage] = useState(10);
+  const [pageIndex, setPageIndex] = useState(1);
   const [itemsList, setItemsList] = useState<TokenCard[]>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const init = address == null ? getList({ pageIndex: 1 }): getMylist({ owner: address })
+    const init = address == null ? getList({ pageIndex: pageIndex }): getMylist({ owner: address })
     
     init.then((result: any) => {
       let list = [];
@@ -83,7 +85,7 @@ export default function Home() {
       setItemsList(list);
       setLoad(true)
     })
-  }, [address]);
+  }, [address, pageIndex]);
 
   const myntfPage = async () => {
     const provider = await getProvider();
@@ -93,6 +95,10 @@ export default function Home() {
       navigate('/mynft/' + acc);
     }
   }
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPageIndex(value);
+  };
 
   return (
     <div>
@@ -115,7 +121,6 @@ export default function Home() {
             </Grid>
           </Grid>
 
-          {/* <Grid item xs={6} className="main" > */}
           <Grid item xs={6} style={{
             display: "flex", flexDirection: "column", alignItems: "center",
             justifyContent: "space-around", padding: "0 1rem"
@@ -158,7 +163,7 @@ export default function Home() {
         </Grid>
       </section>
 
-      <section style={{ marginTop: "2rem", padding: "0 2rem" }}>
+      <section style={{ marginTop: "2rem", padding: "0 2rem", justifyContent: "center" }}>
 
         <Typography style={{
           fontFamily: "sans-serif", fontSize: "1.8rem",
@@ -179,6 +184,18 @@ export default function Home() {
             </Grid>
           ))}
         </Grid>
+
+        <br/>
+        <Divider light />
+        <br/>
+
+        <Stack spacing={2}>
+          <Pagination count={totalPage} color="primary" size="large" onChange={handlePageChange}
+          sx={{ justifyContent: 'center', display: 'flex' }}/>
+        </Stack>
+
+        <br/>
+        <br/>
       </section>
     </div>
   );

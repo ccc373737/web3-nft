@@ -7,10 +7,9 @@ import Image from 'mui-image';
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TOKEN_LIST } from "../constants/newtoken";
-import Temp from "../contracts/Temp.json";
 import { getProvider, getAccount, TokenContract, MarketContract } from "../utils/Web3Util";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
-import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
+import Token from "../contracts/Token.sol/Token.json";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useNavigate } from "react-router-dom";
 import { getList, change } from '../api/tokenApi';
@@ -23,7 +22,7 @@ const CreateNFT = () => {
   const refreshClick = async () => {
     const res = await getList({ pageIndex: 1 });
     console.log(res);
-    setImage(TOKEN_LIST[Math.floor(Math.random() * 12)]);
+    setImage(TOKEN_LIST[Math.floor(Math.random() * 22)]);
   }
 
   const mintClick = async () => {

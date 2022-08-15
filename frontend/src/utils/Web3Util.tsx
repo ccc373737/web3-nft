@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 import store from '../state';
 import { setAccount } from "../state/action";
 import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
-import Token from "../../../contract/artifacts/contracts/Token.sol/Token.json";
-import Market from "../../../contract/artifacts/contracts/Market.sol/Market.json";
+import Token from "../contracts/Token.sol/Token.json";
+import Market from "../contracts/Market.sol/Market.json";
 import { Contract } from "@ethersproject/contracts";
 
 
@@ -42,7 +42,7 @@ export const getAccount = async () => {
 }
 
 export const TokenContract = (): Contract => {
-    const contractProvider = ethers.providers.getDefaultProvider('ropsten');
+    const contractProvider = ethers.providers.getDefaultProvider('goerli');
     const abi = Token.abi;
 
     return new ethers.Contract(TOKEN_ADDRESS, abi, contractProvider);
@@ -50,7 +50,7 @@ export const TokenContract = (): Contract => {
 
 
 export const MarketContract = (): Contract  => {
-    const contractProvider = ethers.providers.getDefaultProvider('ropsten');
+    const contractProvider = ethers.providers.getDefaultProvider('goerli');
     const abi = Market.abi;
 
     return new ethers.Contract(MARKET_ADDRESS, abi, contractProvider);

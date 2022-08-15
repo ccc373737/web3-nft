@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
 import React, {  Fragment, useState, useEffect } from "react";
-import Market from "../../../../contract/artifacts/contracts/Market.sol/Market.json";
+import Market from "../../contracts/Market.sol/Market.json";
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import { DuDetailData, TokenStatus } from "../../pages/Item";
