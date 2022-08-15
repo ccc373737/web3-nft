@@ -1,40 +1,21 @@
-import store from '../../state';
-import React, { useState, useEffect } from "react";
-
-//import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link } from "react-router-dom";
-import Button from "@mui/material/Button";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "@mui/material/TextField";
-import { getProvider, getAccount } from "../../utils/Web3Util";
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem';
-import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
-import {
-    Box, Container, Grid, Typography, FormControl, FormLabel,
-    Radio, RadioGroup, FormControlLabel, CardContent,
-    Card, Chip, Divider
-} from '@mui/material';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import Badge, { BadgeProps } from '@mui/material/Badge';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import SvgIcon from "@mui/material/SvgIcon";
-import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import React, { useState } from "react";
 import SellIcon from '@mui/icons-material/Sell';
-import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../../constants/addressed";
-import { ethers } from "ethers";
-import Market from "../../contracts/Market.sol/Market.json";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {TokenStatus} from "../../pages/Item";
+import { CardContent, FormControl, FormControlLabel, Grid, Radio, RadioGroup } from '@mui/material';
+import InputAdornment from "@mui/material/InputAdornment";
+import SvgIcon from "@mui/material/SvgIcon";
+import TextField from "@mui/material/TextField";
+import { ethers } from "ethers";
 import { change } from '../../api/tokenApi';
+import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
+import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
+import Market from "../../contracts/Market.sol/Market.json";
+import { TokenStatus } from "../../pages/Item";
+import { getProvider } from "../../utils/Web3Util";
 
 const Auction = (
-    { tokenId, isApproved, changeStatus }: 
-    { tokenId: string, isApproved: boolean, changeStatus: (status :TokenStatus) => void }) => {
+    { tokenId, isApproved, changeStatus }:
+        { tokenId: string, isApproved: boolean, changeStatus: (status: TokenStatus) => void }) => {
     const [mode, setMode] = useState('fixed');
     const [loading, setLoad] = useState(false);
 
@@ -50,13 +31,13 @@ const Auction = (
         const contract = new ethers.Contract(MARKET_ADDRESS, Market.abi, signer);
 
         if (mode == "fixed") {
-            contract.fixedStart(TOKEN_ADDRESS, tokenId, 
-                ethers.utils.parseEther(event.target.price.value), 
+            contract.fixedStart(TOKEN_ADDRESS, tokenId,
+                ethers.utils.parseEther(event.target.price.value),
                 Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
-                setLoad(true)
-            }).catch((err: any) => {
-                console.log(err)
-            })
+                    setLoad(true)
+                }).catch((err: any) => {
+                    console.log(err)
+                })
 
             contract.on("FixedStart", (nftAddr, seller, tokenId, price, endTime, event) => {
                 console.log(event);
@@ -65,30 +46,30 @@ const Auction = (
             });
 
         } else if (mode == "dutch") {
-            contract.duAuctionStart(TOKEN_ADDRESS, tokenId, 
-                ethers.utils.parseEther(event.target.startPrice.value), 
-                ethers.utils.parseEther(event.target.floorPrice.value), 
+            contract.duAuctionStart(TOKEN_ADDRESS, tokenId,
+                ethers.utils.parseEther(event.target.startPrice.value),
+                ethers.utils.parseEther(event.target.floorPrice.value),
                 Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
-                setLoad(true)
-            }).catch((err: any) => {
-                console.log(err)
-            })
+                    setLoad(true)
+                }).catch((err: any) => {
+                    console.log(err)
+                })
 
             contract.on("DutchAuctionStart", (nftAddr, seller, tokenId, price, floorPrice, endTime, event) => {
                 console.log(event);
                 change(tokenId.toNumber())
                 changeStatus(TokenStatus.DUCTCH_AUCTION);
             });
-            
+
         } else if (mode == "english") {
-            contract.enAuctionStart(TOKEN_ADDRESS, tokenId, 
-                ethers.utils.parseEther(event.target.reservePrice.value), 
-                ethers.utils.parseEther(event.target.minimumAddPrice.value), 
+            contract.enAuctionStart(TOKEN_ADDRESS, tokenId,
+                ethers.utils.parseEther(event.target.reservePrice.value),
+                ethers.utils.parseEther(event.target.minimumAddPrice.value),
                 Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
-                setLoad(true)
-            }).catch((err: any) => {
-                console.log(err)
-            })
+                    setLoad(true)
+                }).catch((err: any) => {
+                    console.log(err)
+                })
 
             contract.on("EnglishAuctionStart", (nftAddr, seller, tokenId, reservePrice, minimumAddPrice, endTime, event) => {
                 console.log(event);
@@ -97,12 +78,12 @@ const Auction = (
             });
 
         } else if (mode == "exchange") {
-            contract.exchangeStart(TOKEN_ADDRESS, tokenId, 
+            contract.exchangeStart(TOKEN_ADDRESS, tokenId,
                 Date.parse(event.target.endTime.value) / 1000).then((resolve: any) => {
-                setLoad(true)
-            }).catch((err: any) => {
-                console.log(err)
-            })
+                    setLoad(true)
+                }).catch((err: any) => {
+                    console.log(err)
+                })
 
             contract.on("ExchangeAuctionStart", (nftAddr, seller, tokenId, event) => {
                 console.log(event);

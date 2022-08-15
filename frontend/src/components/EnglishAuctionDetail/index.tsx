@@ -7,18 +7,18 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
 import NP from 'number-precision';
 import React, { useEffect, useState } from "react";
-import Market from "../../contracts/Market.sol/Market.json";
+import { change } from '../../api/tokenApi';
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
+import Market from "../../contracts/Market.sol/Market.json";
 import { EnDetailData, TokenStatus } from "../../pages/Item";
 import { getAccount, getProvider } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
-import { change } from '../../api/tokenApi';
 
 
 const EnglishAuctionDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
-    { tokenId: string, detail: EnDetailData, isOwner: boolean, setLogin: () => void, changeStatus: (status: TokenStatus) => void }) => {
+        { tokenId: string, detail: EnDetailData, isOwner: boolean, setLogin: () => void, changeStatus: (status: TokenStatus) => void }) => {
 
     const [placeLoading, setPlaceLoading] = useState(false);
     const [withDrawLoading, setWithDrawLoading] = useState(false);
@@ -166,7 +166,7 @@ const EnglishAuctionDetail = (
                 </Grid>
             </React.Fragment>);
         } else if (isOwner) {
-            return  (<React.Fragment>
+            return (<React.Fragment>
                 <Grid item lg={4} md={4}>
                     <LoadingButton variant="contained" color="primary" onClick={auctionCancel}
                         startIcon={<SellIcon />} style={{ width: 180, height: 53 }} sx={{ borderRadius: 2 }}
@@ -177,7 +177,7 @@ const EnglishAuctionDetail = (
                 </Grid>
             </React.Fragment>)
         } else {
-            return  (<React.Fragment>
+            return (<React.Fragment>
                 <Grid item lg={4} md={4} >
 
                     <TextField
@@ -290,7 +290,7 @@ const EnglishAuctionDetail = (
                         </DialogContent>
                     </Dialog>
 
-                    <ButtonGroup/>
+                    <ButtonGroup />
 
                 </Grid>
             </form>

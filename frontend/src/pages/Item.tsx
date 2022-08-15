@@ -1,40 +1,20 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-//import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link } from "react-router-dom";
-import Button from "@mui/material/Button";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "@mui/material/TextField";
-import { getProvider, getAccount, TokenContract, MarketContract } from "../utils/Web3Util";
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
-import {
-  Box, Container, Grid, Typography, FormControl, FormLabel,
-  Radio, RadioGroup, FormControlLabel, CardContent,
-  Card, Chip, Skeleton, Alert
-} from '@mui/material';
-
+import { Alert, Card, CardContent, Chip, Container, Grid, Skeleton, Typography } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { getAccount, getProvider, MarketContract, TokenContract } from "../utils/Web3Util";
 import LoadingButton from "@mui/lab/LoadingButton";
-
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import Badge, { BadgeProps } from '@mui/material/Badge';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import SvgIcon from "@mui/material/SvgIcon";
-import { ReactComponent as EthereumLogo } from "../assets/ethereum_logo.svg";
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { ethers } from "ethers";
+import { change } from '../api/tokenApi';
 import Auction from '../components/Auction';
-import FixedDetail from "../components/FixedDetail";
 import DutchAuctionDetail from "../components/DutchAuctionDetail";
 import EnglishAuctionDetail from "../components/EnglishAuctionDetail";
 import ExchangeAuctionDetail from "../components/ExchangeAuctionDetail";
-import { TOKEN_ADDRESS, MARKET_ADDRESS } from "../constants/addressed";
-import { ethers } from "ethers";
+import FixedDetail from "../components/FixedDetail";
+import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../constants/addressed";
 import Token from "../contracts/Token.sol/Token.json";
-import Image from 'material-ui-image';
-import { getList, change } from '../api/tokenApi';
 
 export enum TokenStatus {
   NORMAL,

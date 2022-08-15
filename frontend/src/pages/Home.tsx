@@ -1,7 +1,7 @@
-import { Button, Grid, Stack, Pagination, Divider } from '@mui/material';
+import { Button, Divider, Grid, Pagination, Stack } from '@mui/material';
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getList, getMylist } from '../api/tokenApi';
 import modeling3d from "../assets/arts/alan-linssen-alanlinssen-kitbashkitrender2.jpg";
 import woman from "../assets/arts/ashline-sketch-brushes-3-2.jpg";
@@ -15,7 +15,7 @@ import galerie from "../assets/galerie.svg";
 import Card from "../components/Card";
 import { TokenStatus } from "../pages/Item";
 import '../style/Global.css';
-import { getProvider, getAccount, TokenContract, MarketContract } from "../utils/Web3Util";
+import { getAccount, getProvider } from "../utils/Web3Util";
 
 
 export interface TokenCard {
@@ -36,11 +36,11 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const init = address == null ? getList({ pageIndex: pageIndex }): getMylist({ owner: address })
-    
+    const init = address == null ? getList({ pageIndex: pageIndex }) : getMylist({ owner: address })
+
     init.then((result: any) => {
       let list = [];
-      for (let token of result) {
+      for (let token of result.data) {
         let detail = {
           tokenId: token.tokenId,
           owner: token.owner,
@@ -52,7 +52,7 @@ export default function Home() {
 
         if (token.endTime && new Date().getTime() < token.endTime) {
           switch (token.status) {
-            case TokenStatus.FIXED_PRICE: 
+            case TokenStatus.FIXED_PRICE:
               detail.price = (token.fixedPrice + "0000").slice(0, 4);
               detail.endTime = new Date(token.endTime).toLocaleString();
               break;
@@ -60,11 +60,11 @@ export default function Home() {
               let start = token.startPrice;
               let end = token.floorPrice;
               let interval = 10 * 60 * 1000;
-  
+
               let rate = (start - end) / (token.endTime - token.startTime) * interval;
               let step = Math.floor((new Date().getTime() - token.startTime) / interval);
               let nowPrice = start - (step * rate);
-  
+
               detail.price = nowPrice.toString().slice(0, 4);
               detail.endTime = new Date(token.endTime).toLocaleString();
               break;
@@ -77,12 +77,13 @@ export default function Home() {
               break;
           }
         }
-        
+
 
         list.push(detail);
       }
 
       setItemsList(list);
+      setTotalPage(result.pageCount)
       setLoad(true)
     })
   }, [address, pageIndex]);
@@ -127,7 +128,9 @@ export default function Home() {
           }} >
             <img src={galerie} alt="galerie" style={{ width: "55%" }} />
 
-            <Typography style={{ fontSize: "1.2rem", textAlign: "center" }}>A decentralized NFT marketplace where you can expose your art.</Typography>
+            <Typography style={{ fontSize: "1.2rem", textAlign: "center" }}>
+              Discover, collect, and sell extraordinary NFTs in the decentralized NFT market
+            </Typography>
 
             <Stack spacing={2} direction="row">
               <Button variant="contained" color="primary" onClick={myntfPage}
@@ -185,17 +188,17 @@ export default function Home() {
           ))}
         </Grid>
 
-        <br/>
+        <br />
         <Divider light />
-        <br/>
+        <br />
 
-        <Stack spacing={2}>
+        <Stack spacing={2} sx={{ display: (loading ? "true" : "none") }}>
           <Pagination count={totalPage} color="primary" size="large" onChange={handlePageChange}
-          sx={{ justifyContent: 'center', display: 'flex' }}/>
+            sx={{ justifyContent: 'center', display: 'flex' }} />
         </Stack>
 
-        <br/>
-        <br/>
+        <br />
+        <br />
       </section>
     </div>
   );

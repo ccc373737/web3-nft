@@ -1,17 +1,16 @@
 import SellIcon from '@mui/icons-material/Sell';
+import LoadingButton from "@mui/lab/LoadingButton";
 import { Grid, Stack, Typography } from '@mui/material';
-import Button from "@mui/material/Button";
 import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
-import React, {  Fragment, useState, useEffect } from "react";
-import Market from "../../contracts/Market.sol/Market.json";
+import React, { useState } from "react";
+import { change } from '../../api/tokenApi';
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
+import Market from "../../contracts/Market.sol/Market.json";
 import { DuDetailData, TokenStatus } from "../../pages/Item";
 import { getProvider } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
-import LoadingButton from "@mui/lab/LoadingButton";
-import { change } from '../../api/tokenApi';
 
 
 const DutchAuctionDetail = (

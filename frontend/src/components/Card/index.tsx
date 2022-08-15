@@ -1,17 +1,6 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import Web3 from "web3";
-
-import { Card as MuiCard } from "@mui/material";
-import Chip from "@mui/material/Chip";
-import SvgIcon from "@mui/material/SvgIcon";
-import Divider from "@mui/material/Divider";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
-import CardContent from "@mui/material/CardContent";
-import CardActionArea from "@mui/material/CardActionArea";
+import { Card as MuiCard, CardActionArea, CardContent, CardMedia, Chip, Divider, SvgIcon, Typography } from "@mui/material";
 import { TokenStatus } from "../../pages/Item";
-
 import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
 
 const Card = ({

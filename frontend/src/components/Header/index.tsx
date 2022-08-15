@@ -1,27 +1,40 @@
-import React from "react";
-import '../../style/Global.css'
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AppBar from "@mui/material/AppBar";
-import store from '../../state';
-import { ethers } from "ethers";
-
-
-
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+import LoginIcon from '@mui/icons-material/Login';
+import { AppBar, Typography } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import Button from '@mui/material/Button';
-import useScrollTrigger from "@mui/material/useScrollTrigger";
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { setAccount } from "../../state/action";
-
+import IconButton from '@mui/material/IconButton';
+import Toolbar from "@mui/material/Toolbar";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import logo from '../../assets/Logo.svg';
+import '../../style/Global.css';
+import { getAccount, getProvider } from "../../utils/Web3Util";
 
-declare let window: any;
 
 const Header = () => {
-  //const account = useSelector((state) => state.allNft.account);
+  const [acc, setAcc] = useState('');
+
+  useEffect(() => {
+    const init = async () => {
+      let a = await getAccount();
+
+      if (a != null) {
+        setAcc(a);
+      }
+    }
+
+    init();
+  }, []);
+
+  const onlog = async () => {
+    const provider = await getProvider();
+
+    let a = await getAccount();
+
+    if (a != null) {
+      setAcc(a);
+    }
+  }
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -31,14 +44,15 @@ const Header = () => {
           <Link to="/">
             <img src={logo} alt="Galerie" className="logo" />
           </Link>
-          {/* <div className={classes.account}>
-            <AccountBalanceWalletIcon titleAccess="Wallet Address" className={classes.walletIcon}/>
-            <Typography variant="subtitle1">{account.slice(0,7)}...{account.slice(-4)}</Typography>
-          </div> */}
-        </Toolbar>
 
-        {/* <button className="square" >
-        </button> */}
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+            <IconButton onClick={onlog}>
+              <LoginIcon></LoginIcon>
+            </IconButton>
+
+            <Typography variant="subtitle1">{acc && acc.slice(0,7) + '...' + acc.slice(-4)}</Typography>
+          </div>
+        </Toolbar>
       </AppBar>
     </React.Fragment>
 

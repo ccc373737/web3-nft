@@ -102,7 +102,7 @@ router.get('/list', (req, res) => {
         res.send("PARAM ERROR")
     }
  
-    mongo.queryAll(tokenAddress, req.query.pageIndex, 20).then(result => {
+    mongo.queryAll(tokenAddress, req.query.pageIndex, 10).then(result => {
         res.json(result);
     })
 });

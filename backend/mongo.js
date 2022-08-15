@@ -57,7 +57,8 @@ exports.queryAll = async function queryAll(tokenAddress, pageIndex, pageSize) {
         };
 
         const list = await coll.find(query, options).toArray();
-        return list; 
+        const page = Math.ceil(await coll.countDocuments(query) / pageSize);
+        return {data: list, pageCount: page}; 
     } catch (error) {
         console.error(error)
     }

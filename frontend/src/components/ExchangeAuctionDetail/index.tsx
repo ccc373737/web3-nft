@@ -1,27 +1,20 @@
 import SellIcon from '@mui/icons-material/Sell';
+import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
-    Grid, Stack, Typography, TableContainer, Table, TableBody, TableRow, TableCell,
-    FormControl, InputLabel, Select, MenuItem, Paper, Autocomplete
+    FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack, Table, TableBody, TableCell, TableContainer, TableRow, Typography
 } from '@mui/material';
-import { Link } from "react-router-dom";
-
 import Button from "@mui/material/Button";
-import SvgIcon from "@mui/material/SvgIcon";
 import { ethers } from "ethers";
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { change, getMylist } from '../../api/tokenApi';
+import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import Market from "../../contracts/Market.sol/Market.json";
 import Token from "../../contracts/Token.sol/Token.json";
-import { ReactComponent as EthereumLogo } from "../../assets/ethereum_logo.svg";
-import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import { ExDetailData, TokenStatus } from "../../pages/Item";
-import { getProvider, TokenContract, getAccount, ZERO_ADDRESS } from "../../utils/Web3Util";
+import { getAccount, getProvider, TokenContract, ZERO_ADDRESS } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
-import LoadingButton from "@mui/lab/LoadingButton";
-import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
-import { change, getMylist } from '../../api/tokenApi';
-
-
-
 
 interface BidToken {
     tokenId: string,
@@ -32,7 +25,7 @@ interface BidToken {
 
 const ExchangeAuctionDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
-    { tokenId: string, detail: ExDetailData, isOwner: boolean, setLogin: () => void, changeStatus: (status: TokenStatus) => void }) => {
+        { tokenId: string, detail: ExDetailData, isOwner: boolean, setLogin: () => void, changeStatus: (status: TokenStatus) => void }) => {
 
     const [approveLoading, setApproveLoading] = useState(false);
     const [exchangeLoading, setExchangeLoading] = useState(false);
@@ -68,7 +61,7 @@ const ExchangeAuctionDetail = (
                     image: <img style={{ width: '20%' }} src={"https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg"} />,
                     action:
                         (() => {
-                            if (isOwner) { 
+                            if (isOwner) {
                                 return (<LoadingButton variant="contained" color="error" sx={{ borderRadius: 2, width: 40 }} loading={chooseLoading} onClick={() => choose(id)}>
                                     <span style={{ fontSize: '0.6rem' }}>Choose</span>
                                 </LoadingButton>)
@@ -208,7 +201,7 @@ const ExchangeAuctionDetail = (
                 break
             }
         }
-        
+
         let app = await TokenContract().getApproved(token) == MARKET_ADDRESS;
 
         setMyTokenChoose(token);
@@ -306,7 +299,7 @@ const ExchangeAuctionDetail = (
                                 <Select label="TokenId" id="demo-customized-select" labelId="demo-simple-select-autowidth-label" onOpen={myListOpen} onChange={myListChange}>
                                     {myTokenList.map((row) => (
                                         <MenuItem value={row.tokenId}>{row.tokenId}</MenuItem>
-                                    ))}                   
+                                    ))}
                                 </Select>
                             </FormControl>
 
