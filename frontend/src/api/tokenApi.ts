@@ -19,3 +19,7 @@ export const getMylist = (params: any) => axios.get('/token/mylist', {
 export const change = (tokenId: any) => axios.post('/token/change', { 
     tokenId: tokenId
 });
+
+export const getOne = (params: any) => axios.get('/token/detail', { 
+    params: params
+});
