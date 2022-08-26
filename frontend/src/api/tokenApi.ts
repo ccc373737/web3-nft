@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = "http://localhost:3007";
+axios.defaults.baseURL = "http://43.142.34.153:3007";
 
 // 响应拦截器
 axios.interceptors.response.use(
