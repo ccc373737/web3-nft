@@ -15,6 +15,10 @@ import { EnDetailData, TokenStatus } from "../../pages/Item";
 import { getAccount, getProvider } from "../../utils/Web3Util";
 import CountdownTimer from '../CountTimer';
 
+interface Bider {
+    address: string,
+    price: string
+}
 
 const EnglishAuctionDetail = (
     { tokenId, detail, isOwner, setLogin, changeStatus }:
@@ -25,12 +29,24 @@ const EnglishAuctionDetail = (
     const [cancelLoading, setCancelLoading] = useState(false);
     const [endLoading, setEndLoading] = useState(false);
     const [withDrawText, setWithDrawText] = useState("Your Last Bid: 0 ETH");
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [biderList, setBiderList] = useState<Bider[]>([]);
 
     useEffect(() => {
         const init = async () => {
             let price = await getCurrentAccBid();
-            setWithDrawText("Your Last Bid: " + price + " ETH")
+            setWithDrawText("Your Last Bid: " + price + " ETH");
+
+            let list: Bider[] = [];
+            for (let i = 0; i < detail.bidList.length; i++) {
+                if (detail.bidPriceList[i] > 0) {
+                    list.push({
+                        address: detail.bidList[i],
+                        price: ethers.utils.formatEther(detail.bidPriceList[i])
+                    })
+                }
+            }
+            setBiderList(list);
         }
 
         init();
@@ -280,12 +296,10 @@ const EnglishAuctionDetail = (
                     <Dialog open={open} onClose={handleClose} maxWidth='lg'>
                         <DialogContent>
                             <List >
-                                <ListItemText primary="0xc20e802d86e4bb52C0Ed6b665288D1778100ac18 bid for 100.00 ETH on 2022.07.31 15:30:21" />
-                                <ListItemText primary="0xc20e802d86e4bb52C0Ed6b665288D1778100ac18 bid for 100.00 ETH on 2022.07.31 15:30:21" />
-                                <ListItemText primary="0xc20e802d86e4bb52C0Ed6b665288D1778100ac18 bid for 100.00 ETH on 2022.07.31 15:30:21" />
-                                <ListItemText primary="0xc20e802d86e4bb52C0Ed6b665288D1778100ac18 bid for 100.00 ETH on 2022.07.31 15:30:21" />
-                                <ListItemText primary="0xc20e802d86e4bb52C0Ed6b665288D1778100ac18 bid for 100.00 ETH on 2022.07.31 15:30:21" />
-                                <ListItemText primary="0xc20e802d86e4bb52C0Ed6b665288D1778100ac18 bid for 100.00 ETH on 2022.07.31 15:30:21" />
+                                {biderList.map((item) => (
+                                    <ListItemText primary={item.address + " bid for " + item.price + " ETH"} />
+                                ))}
+
                             </List>
                         </DialogContent>
                     </Dialog>

@@ -117,5 +117,15 @@ router.get('/mylist', (req, res) => {
     })
 });
 
+router.get('/detail', (req, res) => { 
+    if (!req.query.tokenAddress || !req.query.tokenId) {
+        res.send("PARAM ERROR")
+    }
+
+    mongo.queryOne(req.query.tokenAddress, req.query.tokenId).then(result => {
+        res.json(result);
+    })
+});
+
 //暴露路由
 module.exports = router;

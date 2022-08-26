@@ -116,7 +116,6 @@ const Item = () => {
         sellText = "English Auction..."
       } else if (status == TokenStatus.EXCHANGE_AUCTION) {
         let detail  = await MarketContract().getExchange(TOKEN_ADDRESS, tokenId);
-        console.log(detail);
         owner = detail.owner;
         setExDetailData({
           owner: owner, 

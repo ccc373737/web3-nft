@@ -15,7 +15,7 @@ exports.insertOrUpdate = async function insertOrUpdate(tokenAddress, tokenId, pa
         console.log(one)
         if (one == null) {
             coll.insertOne(param);
-        } else if (one.status != param.status) {
+        } else {
             coll.updateOne(query, { $set:param });
         }
     } catch (error) {

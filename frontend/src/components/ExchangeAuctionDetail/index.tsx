@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { change, getMylist } from '../../api/tokenApi';
+import { change, getMylist, getOne } from '../../api/tokenApi';
 import { MARKET_ADDRESS, TOKEN_ADDRESS } from "../../constants/addressed";
 import Market from "../../contracts/Market.sol/Market.json";
 import Token from "../../contracts/Token.sol/Token.json";
@@ -38,6 +38,7 @@ const ExchangeAuctionDetail = (
     const [myTokenChoose, setMyTokenChoose] = useState(undefined);
     const [myTokenChooseImg, setMyTokenChooseImg] = useState('');
 
+    console.log("exchange!!!!!!")
     useEffect(() => {
         const init = async () => {
             let set = new Set();
@@ -55,10 +56,13 @@ const ExchangeAuctionDetail = (
                 }
 
                 set.add(id);
+
+                let exDetail: any = await getOne({ tokenAddress: TOKEN_ADDRESS, tokenId: id });
+
                 list.push({
                     tokenId: id,
                     tokenIdLink: <Link target="_blank" to={`/nft/${id}`} style={{ textDecoration: 'none', color: '#2081E2' }}><span>{id}</span></Link>,
-                    image: <img style={{ width: '20%' }} src={"https://ccc-f7-token.oss-cn-hangzhou.aliyuncs.com/tfk1/f2.jpeg"} />,
+                    image: <img style={{ width: '20%' }} src={exDetail && exDetail.url} />,
                     action:
                         (() => {
                             if (isOwner) {
