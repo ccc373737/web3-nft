@@ -180,7 +180,7 @@ const ExchangeAuctionDetail = (
         if (myTokenList.length == 0) {
             getMylist({ owner: acc, status: TokenStatus.NORMAL }).then((result: any) => {
                 let list = [];
-                for (let token of result) {
+                for (let token of result.data) {
                     list.push({
                         tokenId: token.tokenId,
                         image: token.url,
