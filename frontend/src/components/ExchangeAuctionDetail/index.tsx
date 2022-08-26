@@ -57,12 +57,10 @@ const ExchangeAuctionDetail = (
 
                 set.add(id);
 
-                let exDetail: any = await getOne({ tokenAddress: TOKEN_ADDRESS, tokenId: id });
-
                 list.push({
                     tokenId: id,
                     tokenIdLink: <Link target="_blank" to={`/nft/${id}`} style={{ textDecoration: 'none', color: '#2081E2' }}><span>{id}</span></Link>,
-                    image: <img style={{ width: '20%' }} src={exDetail && exDetail.url} />,
+                    image: <img style={{ width: '20%' }} src={detail.imgList[i]} />,
                     action:
                         (() => {
                             if (isOwner) {

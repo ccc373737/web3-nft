@@ -7,7 +7,7 @@ import { getAccount, getProvider, MarketContract, TokenContract } from "../utils
 import LoadingButton from "@mui/lab/LoadingButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { ethers } from "ethers";
-import { change } from '../api/tokenApi';
+import { change, getOne } from '../api/tokenApi';
 import Auction from '../components/Auction';
 import DutchAuctionDetail from "../components/DutchAuctionDetail";
 import EnglishAuctionDetail from "../components/EnglishAuctionDetail";
@@ -54,17 +54,18 @@ export interface ExDetailData {
   owner: string,
   bidList: string[],
   bidTokenList: string[],
-  endTime: number
+  endTime: number,
+  imgList: string[]
 }
 
 const Item = () => {
   const { tokenId } = useParams();
 
   const [status, setStatus] = useState(TokenStatus.NORMAL);
-  const [fixedDetailData, setFixedDetailData] = useState<FixedDetailData>({owner:'', price:'', endTime:0});
-  const [duDetailData, setDuDetailData] = useState<DuDetailData>({owner:'', price:'', floorPrice:'', endTime:0});
-  const [enDetailData, setEnDetailData] = useState<EnDetailData>({owner:'', price:0, minimumAddPrice:0, bidList:[], bidPriceList:[], highestBid:'', highestPrice:0, endTime:0});
-  const [exDetailData, setExDetailData] = useState<ExDetailData>({owner:'', bidList:[], bidTokenList:[], endTime:0});
+  const [fixedDetailData, setFixedDetailData] = useState<FixedDetailData>({ owner: '', price: '', endTime: 0 });
+  const [duDetailData, setDuDetailData] = useState<DuDetailData>({ owner: '', price: '', floorPrice: '', endTime: 0 });
+  const [enDetailData, setEnDetailData] = useState<EnDetailData>({ owner: '', price: 0, minimumAddPrice: 0, bidList: [], bidPriceList: [], highestBid: '', highestPrice: 0, endTime: 0 });
+  const [exDetailData, setExDetailData] = useState<ExDetailData>({ owner: '', bidList: [], bidTokenList: [], endTime: 0, imgList: [] });
   const [login, setLogin] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
 
@@ -82,46 +83,57 @@ const Item = () => {
     const init = async () => {
       console.log("init111111")
       change(tokenId);
-      
+
       let status = await MarketContract().getStatus(TOKEN_ADDRESS, tokenId);
       let owner = tokenData.owner
       let sellText = '';
       if (status == TokenStatus.NORMAL) {
         owner = await TokenContract().ownerOf(tokenId);
       } else if (status == TokenStatus.FIXED_PRICE) {
-        let detail  = await MarketContract().getFixed(TOKEN_ADDRESS, tokenId);
+        let detail = await MarketContract().getFixed(TOKEN_ADDRESS, tokenId);
         owner = detail[0];
-        setFixedDetailData({owner: owner, price: ethers.utils.formatEther(detail[1]), endTime: detail[2].toNumber() * 1000});
+        setFixedDetailData({ owner: owner, price: ethers.utils.formatEther(detail[1]), endTime: detail[2].toNumber() * 1000 });
         sellText = "Selling..."
 
       } else if (status == TokenStatus.DUCTCH_AUCTION) {
-        let detail  = await MarketContract().getDuAuction(TOKEN_ADDRESS, tokenId);
+        let detail = await MarketContract().getDuAuction(TOKEN_ADDRESS, tokenId);
         owner = detail.owner;
         console.log(ethers.utils.formatEther(detail.nowPrice))
-        setDuDetailData({owner: owner, price: ethers.utils.formatEther(detail.nowPrice), floorPrice: ethers.utils.formatEther(detail.floorPrice), endTime: detail.endTime.toNumber() * 1000});
+        setDuDetailData({ owner: owner, price: ethers.utils.formatEther(detail.nowPrice), floorPrice: ethers.utils.formatEther(detail.floorPrice), endTime: detail.endTime.toNumber() * 1000 });
         sellText = "Dutch Auction... Droped every ten minutes"
 
       } else if (status == TokenStatus.ENGLISH_AUCTION) {
-        let detail  = await MarketContract().getEnAuction(TOKEN_ADDRESS, tokenId);
+        let detail = await MarketContract().getEnAuction(TOKEN_ADDRESS, tokenId);
         owner = detail.owner;
         setEnDetailData({
-          owner: owner, 
-          price: parseFloat(ethers.utils.formatEther(detail.nowPirce)), 
-          minimumAddPrice: parseFloat(ethers.utils.formatEther(detail.minimumAddPrice)), 
+          owner: owner,
+          price: parseFloat(ethers.utils.formatEther(detail.nowPirce)),
+          minimumAddPrice: parseFloat(ethers.utils.formatEther(detail.minimumAddPrice)),
           bidList: detail.bidList,
           bidPriceList: detail.bidPriceList,
           highestBid: detail.highestBid,
-          highestPrice: parseFloat(ethers.utils.formatEther(detail.highestPrice)), 
-          endTime: detail.endTime.toNumber() * 1000});
+          highestPrice: parseFloat(ethers.utils.formatEther(detail.highestPrice)),
+          endTime: detail.endTime.toNumber() * 1000
+        });
         sellText = "English Auction..."
       } else if (status == TokenStatus.EXCHANGE_AUCTION) {
-        let detail  = await MarketContract().getExchange(TOKEN_ADDRESS, tokenId);
+        let detail = await MarketContract().getExchange(TOKEN_ADDRESS, tokenId);
         owner = detail.owner;
+
+        let imgList: string[] = [];
+        for (let i = 0; i < detail.bidTokenList.length; i++) {
+          let id = detail.bidTokenList[i].toString();
+          let exDetail: any = await getOne({ tokenAddress: TOKEN_ADDRESS, tokenId: id });
+          imgList.push((exDetail && exDetail.url) ? exDetail.url : null);
+        }
+
         setExDetailData({
-          owner: owner, 
+          owner: owner,
           bidList: detail.bidList,
           bidTokenList: detail.bidTokenList,
-          endTime: detail.endTime.toNumber() * 1000});
+          endTime: detail.endTime.toNumber() * 1000,
+          imgList: imgList
+        });
         sellText = "Exchange Auction...";
       } else if (status == TokenStatus.EXCHANGED) {
         sellText = "Already Exchanged...";
@@ -174,7 +186,7 @@ const Item = () => {
       ...tokenData,
       isApproved: app
     })
-    
+
     const signer = provider.getSigner();
     const contract = new ethers.Contract(TOKEN_ADDRESS, Token.abi, signer);
 
@@ -193,15 +205,15 @@ const Item = () => {
 
   const AuctionCom = () => {
     if (status == TokenStatus.NORMAL) {
-      return (tokenData.isOwner ? <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} changeStatus={changeStatus}/> : <></>)
+      return (tokenData.isOwner ? <Auction tokenId={tokenId as string} isApproved={tokenData.isApproved} changeStatus={changeStatus} /> : <></>)
     } else if (status == TokenStatus.FIXED_PRICE) {
-      return<FixedDetail tokenId={tokenId as string} detail={fixedDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus}/>
+      return <FixedDetail tokenId={tokenId as string} detail={fixedDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus} />
     } else if (status == TokenStatus.DUCTCH_AUCTION) {
-      return<DutchAuctionDetail tokenId={tokenId as string} detail={duDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus}/>
+      return <DutchAuctionDetail tokenId={tokenId as string} detail={duDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus} />
     } else if (status == TokenStatus.ENGLISH_AUCTION) {
-      return<EnglishAuctionDetail tokenId={tokenId as string} detail={enDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus}/>
+      return <EnglishAuctionDetail tokenId={tokenId as string} detail={enDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus} />
     } else if (status == TokenStatus.EXCHANGE_AUCTION) {
-      return<ExchangeAuctionDetail tokenId={tokenId as string} detail={exDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus}/>
+      return <ExchangeAuctionDetail tokenId={tokenId as string} detail={exDetailData} isOwner={tokenData.isOwner} setLogin={logIn} changeStatus={changeStatus} />
     }
 
     return <></>
@@ -221,7 +233,7 @@ const Item = () => {
             }
           </Grid>
 
-          <Grid item lg={7} md={6} sx={{ display: (tokenData.isLoad ? "true" : "none" )}}>
+          <Grid item lg={7} md={6} sx={{ display: (tokenData.isLoad ? "true" : "none") }}>
             <Link to="/">
               <KeyboardBackspaceIcon fontSize="large" />
             </Link>
@@ -259,11 +271,11 @@ const Item = () => {
 
                 <br />
 
-                <Alert icon={false} sx={{ display: (status == TokenStatus.NORMAL ? "none" : "true" )}}>{tokenData.sellText}</Alert>
+                <Alert icon={false} sx={{ display: (status == TokenStatus.NORMAL ? "none" : "true") }}>{tokenData.sellText}</Alert>
 
               </CardContent>
 
-              <AuctionCom/>
+              <AuctionCom />
 
             </Card>
           </Grid>
