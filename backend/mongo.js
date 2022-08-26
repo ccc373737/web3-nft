@@ -36,10 +36,8 @@ exports.queryMyTokens = async function queryMyTokens(tokenAddress, owner, status
             sort: { updateDate: -1 }
         };
 
-        console.log(query)
         const list = await coll.find(query, options).toArray();
-        console.log(list)
-        return list;
+        return {data: list}; 
     } catch (error) {
         console.error(error)
     }
