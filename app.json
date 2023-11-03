@@ -1,5 +1,5 @@
 {
-    "apps": [{
+    "apps": [{ 
         "name": "backend",
         "script": "backend/index.js"
     }]
